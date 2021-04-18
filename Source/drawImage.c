@@ -3,7 +3,9 @@
 #include <sys/mman.h>
 #include "framebuffer.h"
 #include "drawImage.h"
-#include "backgroundImg.h"
+#include "lvl1.h"
+#include "lvl2.h"
+#include "lvl3.h"
 #include "frogFWD.h"
 #include "frogBWD.h"
 #include "frogLWD.h"
@@ -14,36 +16,80 @@
 
 struct fbs framebufferstruct;
 
+int level = 1;
 int lastPressedX = 1200;
-int lastPressedY = 464;
+int lastPressedY = 538;
 
 
 /* main function */
-int drawBack(){
+int drawBack(int buttonPressed){
 
 	/* initialize + get FBS */
 	framebufferstruct = initFbInfo();
 	
-	short int *background=(short int *) backgroundImg.pixel_data;
-	
+	if(lastPressedY <= 154 && buttonPressed == 5){
+		level = level + 1;
+		lastPressedY = 602;
+	}
+
 	/* initialize a pixel */
 	Pixel *pixel;
 	pixel = malloc(sizeof(Pixel));
 	int i=0;
 	unsigned int quarter,byte,word;
-	for (int y = 0; y < 720; y++)//30 is the image height
-	{
-		for (int x = 600; x < 1880; x++) // 30 is image width
-		{	
-				pixel->color = background[i]; 
-				pixel->x = x;
-				pixel->y = y;
-	
-				drawPixel(pixel);
-				i++;
-				
+
+	if(level == 1){
+		short int *background=(short int *) lvl_one.pixel_data;
+
+		for (int y = 0; y < 720; y++)//30 is the image height
+		{
+			for (int x = 600; x < 1880; x++) // 30 is image width
+			{	
+					pixel->color = background[i]; 
+					pixel->x = x;
+					pixel->y = y;
+		
+					drawPixel(pixel);
+					i++;
+					
+			}
+		}
+
+	} else if(level == 2){
+		short int *background=(short int *) lvl_two.pixel_data;
+
+		for (int y = 0; y < 720; y++)//30 is the image height
+		{
+			for (int x = 600; x < 1880; x++) // 30 is image width
+			{	
+					pixel->color = background[i]; 
+					pixel->x = x;
+					pixel->y = y;
+		
+					drawPixel(pixel);
+					i++;
+					
+			}
+		}
+
+	} else{
+		short int *background=(short int *) lvl_three.pixel_data;
+
+		for (int y = 0; y < 720; y++)//30 is the image height
+		{
+			for (int x = 600; x < 1880; x++) // 30 is image width
+			{	
+					pixel->color = background[i]; 
+					pixel->x = x;
+					pixel->y = y;
+		
+					drawPixel(pixel);
+					i++;
+					
+			}
 		}
 	}
+	
 	/* free pixel's allocated memory */
 	free(pixel);
 	pixel = NULL;
@@ -63,7 +109,7 @@ int drawFrog(){
 	pixel = malloc(sizeof(Pixel));
 	int i=0;
 	unsigned int quarter,byte,word;
-	for (int y = 464; y < 528; y++)//30 is the image height
+	for (int y = 538; y < 602; y++)//30 is the image height
 	{
 		for (int x = 1200; x < 1264; x++) // 30 is image width
 		{	
@@ -127,8 +173,13 @@ int moveFrog(int buttonPressed){
 			}
 		}
 	} else if(buttonPressed == 7){ // pressed LEFT
+
 		short int *frogPtr=(short int *) frogLWD.pixel_data;
-		lastPressedX = lastPressedX - 64;
+
+		if(lastPressedX != 816){
+			lastPressedX = lastPressedX - 64;
+		}
+
 		for (int y = lastPressedY; y < lastPressedY+64; y++)//30 is the image height
 		{
 			for (int x = lastPressedX; x < lastPressedX+64; x++) // 30 is image width
@@ -142,9 +193,15 @@ int moveFrog(int buttonPressed){
 					
 			}
 		}
+		
 	} else{ // pressed RIGHT
+
 		short int *frogPtr=(short int *) frogRWD.pixel_data;
-		lastPressedX = lastPressedX + 64;
+
+		if(lastPressedX != 1584){
+			lastPressedX = lastPressedX + 64;
+		}
+
 		for (int y = lastPressedY; y < lastPressedY+64; y++)//30 is the image height
 		{
 			for (int x = lastPressedX; x < lastPressedX+64; x++) // 30 is image width
@@ -158,7 +215,7 @@ int moveFrog(int buttonPressed){
 					
 			}
 		}
-	}
+	}	
 	/* free pixel's allocated memory */
 	free(pixel);
 	pixel = NULL;

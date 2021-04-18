@@ -156,7 +156,7 @@ void print_Message(int message, int buttons[]){
     
                 if(i >= 5 && i <= 8){
                     //move the frog
-                    drawBack();
+                    drawBack(i);
                     moveFrog(i);
                 }
             }
@@ -246,7 +246,7 @@ void read_SNES(unsigned int *gpio){
 // Use: runs our program
 
 int main(){
-    drawBack();
+    drawBack(0);
     drawFrog();
     unsigned int *gpio = getGPIOPtr();                                  // Obtains the base GPIO address
     
