@@ -8,7 +8,8 @@ typedef struct {
 } Pixel;
 
 void drawPixel(Pixel *pixel);
-int drawBack();
+int drawGameScreen();
+int drawFrames();
 int drawFrog();
 int moveFrog();
 #endif

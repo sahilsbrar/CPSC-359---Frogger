@@ -1,18 +1,48 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/mman.h>
+#include <string.h>	//sounds
 #include "framebuffer.h"
 #include "drawImage.h"
-#include "lvl1.h"
-#include "lvl2.h"
-#include "lvl3.h"
-#include "lvl4.h"
-#include "frogFWD.h"
-#include "frogBWD.h"
-#include "frogLWD.h"
-#include "frogRWD.h"
-#include <string.h>	//sounds
 
+// levels
+#include "lvl1.h"			// lvl_one.pixel_data
+#include "lvl2.h"			// lvl_two.pixel_data
+#include "lvl3.h"			// lvl_three.pixel_data
+#include "lvl4.h"			// lvl_four.pixel_data
+
+// frogs
+#include "frogFWD.h"		// frogFWD.pixel_data
+#include "frogBWD.h"		// frogBWD.pixel_data
+#include "frogLWD.h"		// frogLWD.pixel_data
+#include "frogRWD.h"		// frogRWD.pixel_data
+#include "frogDead.h"		// frogDead.pixel_data
+
+// frame borders
+#include "leftBorder.h"		// leftBorder.pixel_data
+#include "rightBorder.h"	// rightBorder.pixel_data
+
+// obstacles
+#include "lvl1Obs.h"		// lvlOne_Obs.pixel_data
+#include "lvl2Obs.h"		// lvlTwo_Obs.pixel_data
+#include "lvl3Obs.h"		// lvlThree_Obs.pixel_data
+#include "lvl4Obs.h"		// lvlFour_Obs.pixel_data
+
+// numbers and timer bar
+#include "numbersImg.h"		// numbersImg.pixel_data
+#include "timerBar.h"		// timerBar.pixel_data
+
+// pause
+#include "pauseResume.h"	// pauseResume.pixel_data
+#include "pauseQuit.h"		// pauseQuit.pixel_data
+
+// win/lose
+#include "winScreen.h"		// winScreen.pixel_data
+#include "loseScreen.h"		// loseScreen.pixel_data
+
+// main menu
+#include "startImg.h"		// startImg.pixel_data
+#include "quitImg.h"		// quitImg.pixel_data
 
 /* Definitions */
 
@@ -42,7 +72,7 @@ int lastPressedY = 537;		// was 538 (offset by -3)
 
 
 /* main function */
-int drawBack(int buttonPressed){
+int drawGameScreen(int buttonPressed){
 
 	/* initialize + get FBS */
 	framebufferstruct = initFbInfo();
@@ -125,10 +155,64 @@ int drawBack(int buttonPressed){
 			}
 		}
 	}
-	
+
 	/* free pixel's allocated memory */
 	free(pixel);
 	pixel = NULL;
+	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+	
+	return 0;
+}
+
+int drawFrames(){
+
+	/* initialize + get FBS */
+	framebufferstruct = initFbInfo();
+
+	/* initialize a pixel */
+	Pixel *pixelLeft;
+	pixelLeft = malloc(sizeof(Pixel));
+	int i=0;
+	unsigned int quarter,byte,word;
+	/* left frame */
+	short int *leftFrame=(short int *) leftBorder.pixel_data;
+	for (int y = 0; y < 720; y++)//30 is the image height
+	{
+		for (int x = 600; x < 792; x++) // 30 is image width
+		{	
+				pixelLeft->color = leftFrame[i]; 
+				pixelLeft->x = x;
+				pixelLeft->y = y;
+	
+				drawPixel(pixelLeft);
+				i++;
+		}
+	}
+
+	/* initialize a pixel */
+	Pixel *pixelRight;
+	pixelRight = malloc(sizeof(Pixel));
+	int j=0;
+	/* right frame */
+	short int *rightFrame=(short int *) rightBorder.pixel_data;
+	for (int y = 0; y < 720; y++)//30 is the image height
+	{
+		for (int x = 1688; x < 1880; x++) // 30 is image width
+		{	
+				pixelRight->color = rightFrame[j]; 
+				pixelRight->x = x;
+				pixelRight->y = y;
+	
+				drawPixel(pixelRight);
+				j++;
+		}
+	}
+
+	/* free pixel's allocated memory */
+	free(pixelLeft);
+	pixelLeft = NULL;
+	free(pixelRight);
+	pixelRight = NULL;
 	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
 	
 	return 0;
