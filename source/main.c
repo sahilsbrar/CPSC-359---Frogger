@@ -19,7 +19,7 @@ TO COMPILE & RUN IN LINUX TERMINAL, USE:
  * with that an empty folder named "build" within the project folder
 
 */
-
+//hello
 
 #include <stdio.h>
 #include <stdlib.h>
