@@ -20,7 +20,7 @@ TO COMPILE & RUN IN LINUX TERMINAL, USE:
 
 */
 //hello
-
+// hey
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/mman.h>
@@ -32,7 +32,7 @@ TO COMPILE & RUN IN LINUX TERMINAL, USE:
 #include <stdbool.h>
 #include "initGPIO.h"
 #include "drawImage.h"
-
+// jddjjf
 
 
 /*  Declarations  */
