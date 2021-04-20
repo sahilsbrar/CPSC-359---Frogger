@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/mman.h>
+#include <stdbool.h>
 #include <string.h>	//sounds
 #include "framebuffer.h"
 #include "drawImage.h"
@@ -69,9 +70,75 @@ struct fbs framebufferstruct;
 int level = 1;
 int lastPressedX = 1240;	// was 1200 (offset by +39)
 int lastPressedY = 537;		// was 538 (offset by -3)
+bool startGame = false;
+bool quitGame = false;
 
+bool getStart(){
+	return startGame;
+}
 
-/* main function */
+bool getQuit(){
+	return quitGame;
+}
+
+int drawMainMenu(int buttonPressed){
+
+	/* initialize + get FBS */
+	framebufferstruct = initFbInfo();
+
+	/* initialize a pixel */
+	Pixel *pixel;
+	pixel = malloc(sizeof(Pixel));
+	int i=0;
+	unsigned int quarter,byte,word;
+
+	if(buttonPressed == 5){
+		startGame = true;
+		quitGame = false;
+
+		short int *background=(short int *) startImg.pixel_data;
+		
+		for (int y = 0; y < 720; y++)//30 is the image height
+		{
+			for (int x = 600; x < 1880; x++) // 30 is image width
+			{	
+					pixel->color = background[i]; 
+					pixel->x = x;
+					pixel->y = y;
+		
+					drawPixel(pixel);
+					i++;
+					
+			}
+		}
+	}else{
+		startGame = false;
+		quitGame = true;
+		short int *background=(short int *) quitImg.pixel_data;
+
+		for (int y = 0; y < 720; y++)//30 is the image height
+		{
+			for (int x = 600; x < 1880; x++) // 30 is image width
+			{	
+					pixel->color = background[i]; 
+					pixel->x = x;
+					pixel->y = y;
+		
+					drawPixel(pixel);
+					i++;
+					
+			}
+		}
+	}
+
+	/* free pixel's allocated memory */
+	free(pixel);
+	pixel = NULL;
+	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+	
+	return 0;
+}
+
 int drawGameScreen(int buttonPressed){
 
 	/* initialize + get FBS */
@@ -224,24 +291,20 @@ int drawFrog(){
 	
 	short int *frogPtr=(short int *) frogFWD.pixel_data;
 	
-	//printf("Hola, %d",frogPtr[64]);
-	
 	/* initialize a pixel */
 	Pixel *pixel;
 	pixel = malloc(sizeof(Pixel));
 	int i=0;
 	unsigned int quarter,byte,word;
-	for (int y = 537; y < 600; y++)//30 is the image height; was 538,602
-	{					// ^ changed from 601 to check something 
+	for (int y = 537; y < 601; y++)//30 is the image height; was 538,602
+	{
 		for (int x = 1240; x < 1304; x++) // 30 is image width; was 1200,1264
 		{	
-				pixel->color = frogPtr[i+64];	//+64];
+				pixel->color = frogPtr[i]; 
 				pixel->x = x;
 				pixel->y = y;
 	
-				if (pixel->color != 0){
-					drawPixel(pixel);
-				}
+				drawPixel(pixel);
 				i++;
 				
 		}
@@ -276,9 +339,7 @@ int moveFrog(int buttonPressed){
 					pixel->x = x;
 					pixel->y = y;
 		
-					if (pixel->color != 0){
 					drawPixel(pixel);
-					}
 					i++;
 					
 			}
@@ -303,9 +364,7 @@ int moveFrog(int buttonPressed){
 					pixel->x = x;
 					pixel->y = y;
 		
-					if (pixel->color != 0){
 					drawPixel(pixel);
-					}
 					i++;
 					
 			}
@@ -326,9 +385,7 @@ int moveFrog(int buttonPressed){
 					pixel->x = x;
 					pixel->y = y;
 		
-					if (pixel->color != 0){
 					drawPixel(pixel);
-					}
 					i++;
 					
 			}
@@ -350,9 +407,7 @@ int moveFrog(int buttonPressed){
 					pixel->x = x;
 					pixel->y = y;
 		
-					if (pixel->color != 0){
 					drawPixel(pixel);
-					}
 					i++;
 					
 			}
@@ -376,49 +431,3 @@ void drawPixel(Pixel *pixel){
 }
 
 
-int drawBaddie(int lane, int level, int offset){
-	/* initialize + get FBS */
-	framebufferstruct = initFbInfo();
-	
-	short int *baddiePtr;
-	
-	if (level == 1) {
-		baddiePtr=(short int *) lvlOne_Obs.pixel_data;
-	}
-	else if (level == 2) {
-		baddiePtr=(short int *) lvlTwo_Obs.pixel_data;
-	}
-	else if (level == 3) {
-		baddiePtr=(short int *) lvlThree_Obs.pixel_data;
-	}
-	else if (level == 4) {	// brain is mush, but leaving as not "else" in case something funky happens with the level value
-		baddiePtr=(short int *) lvlFour_Obs.pixel_data;
-	}
-	
-	/* initialize a pixel */
-	Pixel *pixel;
-	pixel = malloc(sizeof(Pixel));
-	int i=0;
-	unsigned int quarter,byte,word;
-	for (int y = 474; y < 537; y++)//30 is the image height; was 538,602
-	{					// ^ was 538, but changed to avoid error
-		for (int x = 1112; x < 1178; x++) // 30 is image width; was 1200,1264
-		{	
-				pixel->color = baddiePtr[(x-1112)+(y-473)*384];
-				pixel->x = x;
-				pixel->y = y;
-	
-				if (pixel->color != 0){
-					drawPixel(pixel);
-				}
-				i++;
-				
-		}
-	}
-	/* free pixel's allocated memory */
-	free(pixel);
-	pixel = NULL;
-	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
-	
-	return 0;
-}
