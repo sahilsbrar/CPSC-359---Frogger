@@ -1,23 +1,16 @@
 /*
 CPSC 359 Project (Part 1)
 Winter 2021
-
 Lecturer: Dr. Jalal Kawash
-
 Authors: Paul Serafini (ID# 30077288), Sahil Brar (ID# 30021440)
-
 Assignment Objective(s):
 Create a device driver for the SNES controller.
-
 TO COMPILE & RUN IN LINUX TERMINAL, USE:
-
  make
  ./myProg
-
  * Authors' Note: Per README, ensure makefile is in the project folder,
  * that initGPIO files and this file are in a folder named "source",
  * with that an empty folder named "build" within the project folder
-
 */
 
 
