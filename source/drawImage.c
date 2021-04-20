@@ -335,11 +335,11 @@ int moveFrog(int buttonPressed){
 		
 		short int *frogPtr=(short int *) frogFWD.pixel_data;
 		lastPressedY = lastPressedY - 64;
-		for (int y = lastPressedY; y < lastPressedY+64; y++)//30 is the image height
+		for (int y = lastPressedY; y < lastPressedY+63; y++)//30 is the image height
 		{
 			for (int x = lastPressedX; x < lastPressedX+64; x++) // 30 is image width
 			{	
-					pixel->color = frogPtr[i]; 
+					pixel->color = frogPtr[i+64]; 
 					pixel->x = x;
 					pixel->y = y;
 
@@ -362,11 +362,11 @@ int moveFrog(int buttonPressed){
 		
 		//lastPressedY = lastPressedY + 64;
 		
-		for (int y = lastPressedY; y < lastPressedY+64; y++)//30 is the image height
+		for (int y = lastPressedY; y < lastPressedY+63; y++)//30 is the image height
 		{
 			for (int x = lastPressedX; x < lastPressedX+64; x++) // 30 is image width
 			{	
-					pixel->color = frogPtr[i]; 
+					pixel->color = frogPtr[i+64]; 
 					pixel->x = x;
 					pixel->y = y;
 		
@@ -385,11 +385,11 @@ int moveFrog(int buttonPressed){
 			lastPressedX = lastPressedX - 64;
 		}
 
-		for (int y = lastPressedY; y < lastPressedY+64; y++)//30 is the image height
+		for (int y = lastPressedY; y < lastPressedY+63; y++)//30 is the image height
 		{
 			for (int x = lastPressedX; x < lastPressedX+64; x++) // 30 is image width
 			{	
-					pixel->color = frogPtr[i]; 
+					pixel->color = frogPtr[i+64]; 
 					pixel->x = x;
 					pixel->y = y;
 		
@@ -409,11 +409,11 @@ int moveFrog(int buttonPressed){
 			lastPressedX = lastPressedX + 64;
 		}
 
-		for (int y = lastPressedY; y < lastPressedY+64; y++)//30 is the image height
+		for (int y = lastPressedY; y < lastPressedY+63; y++)//30 is the image height
 		{
 			for (int x = lastPressedX; x < lastPressedX+64; x++) // 30 is image width
 			{	
-					pixel->color = frogPtr[i]; 
+					pixel->color = frogPtr[i+64]; 
 					pixel->x = x;
 					pixel->y = y;
 		
