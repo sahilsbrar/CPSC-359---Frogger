@@ -276,7 +276,6 @@ int moveFrog(int buttonPressed){
 					pixel->x = x;
 					pixel->y = y;
 		
-					if (pixel->color != 0){
 					drawPixel(pixel);
 					}
 					i++;
