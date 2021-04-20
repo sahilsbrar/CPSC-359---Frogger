@@ -21,6 +21,8 @@ TO COMPILE & RUN IN LINUX TERMINAL, USE:
 */
 //hello
 // hey
+//hello hi
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/mman.h>
