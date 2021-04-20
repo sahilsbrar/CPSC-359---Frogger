@@ -42,7 +42,8 @@ TO COMPILE & RUN IN LINUX TERMINAL, USE:
 #define LAT 9   // GPIO Pin 9 for LATCH
 #define DAT 10  // GPIO Pin 10 for DATA
 
-
+bool startBool = false;
+bool quitBool = false;
 
 /*  Functions  */
 
@@ -153,8 +154,22 @@ void print_Message(int message, int buttons[]){
         for(int i = 1; i <= 16; i++){                                   // Goes up to 16 to fit SNES controller protocol, noting 13-16 to be undefined
             if(buttons[i] == 0 && i != 4 && i < 13){                    
                 printf("\nYou have pressed %s\n", labels[i]);           // Prints pressed button message with appropriate label
-    
-                if(i >= 5 && i <= 8){
+
+                if(startBool == false){
+                    if(i == 5 || i == 6){
+                        drawMainMenu(i);
+                        
+                    }else if(i == 9){
+                        startBool = getStart();
+                        quitBool = getQuit();
+                        
+                        if(startBool == true){
+                            drawGameScreen(0);
+                            drawFrog();
+                            drawFrames();
+                        }
+                    }
+                }else if(i >= 5 && i <= 8){
                     //move the frog
                     drawGameScreen(i);
                     moveFrog(i);
@@ -189,11 +204,10 @@ void read_SNES(unsigned int *gpio){
     print_Message(0, buttons);                                          // Prints start message; used here (instead of in main function) to reduce cost
 
     //bool status = false;                                              // For future functionality (dealing with START menu, game states, and whatnot)
-    bool startButton = false;                                           // Marks press-state of startButton
     bool change = false;                                                // Marks if change has occured between sequential presses
     int i = 1;
     //while(!status){                                                   // For future functionality (dealing with START menu, game states, and whatnot)
-        while(!startButton){                                            // Next 4 lines and for-loop derived from "Video - RPi 2 of 3" slide 20, on d2l
+        while(!quitBool){                                            // Next 4 lines and for-loop derived from "Video - RPi 2 of 3" slide 20, on d2l
             write_Clock(gpio);
             write_Latch(gpio);
             wait(12);
@@ -229,7 +243,7 @@ void read_SNES(unsigned int *gpio){
             }
             
             if(buttons[4] == 0){                                        // START button has been pressed
-                startButton = true;                                     // Stops the current while-loop
+                quitBool = true;                                     // Stops the current while-loop
             }
         }
     //status = false;                                                   // For future functionality (dealing with START menu, game states, and whatnot)
@@ -247,9 +261,7 @@ void read_SNES(unsigned int *gpio){
 // Use: runs our program
 
 int main(){
-    drawGameScreen(0);
-    drawFrog();
-    drawBaddie(1,1,0);
+    drawMainMenu(5);
     unsigned int *gpio = getGPIOPtr();                                  // Obtains the base GPIO address
     
     /* IMMEDIATELY BELOW IS FOR POTENTIAL LATER FUNCTIONALITY

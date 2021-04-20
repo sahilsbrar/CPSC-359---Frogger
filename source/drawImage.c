@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/mman.h>
+#include <stdbool.h>
 #include <string.h>	//sounds
 #include "framebuffer.h"
 #include "drawImage.h"
@@ -69,9 +70,75 @@ struct fbs framebufferstruct;
 int level = 1;
 int lastPressedX = 1240;	// was 1200 (offset by +39)
 int lastPressedY = 537;		// was 538 (offset by -3)
+bool startGame = false;
+bool quitGame = false;
 
+bool getStart(){
+	return startGame;
+}
 
-/* main function */
+bool getQuit(){
+	return quitGame;
+}
+
+int drawMainMenu(int buttonPressed){
+
+	/* initialize + get FBS */
+	framebufferstruct = initFbInfo();
+
+	/* initialize a pixel */
+	Pixel *pixel;
+	pixel = malloc(sizeof(Pixel));
+	int i=0;
+	unsigned int quarter,byte,word;
+
+	if(buttonPressed == 5){
+		startGame = true;
+		quitGame = false;
+
+		short int *background=(short int *) startImg.pixel_data;
+		
+		for (int y = 0; y < 720; y++)//30 is the image height
+		{
+			for (int x = 600; x < 1880; x++) // 30 is image width
+			{	
+					pixel->color = background[i]; 
+					pixel->x = x;
+					pixel->y = y;
+		
+					drawPixel(pixel);
+					i++;
+					
+			}
+		}
+	}else{
+		startGame = false;
+		quitGame = true;
+		short int *background=(short int *) quitImg.pixel_data;
+
+		for (int y = 0; y < 720; y++)//30 is the image height
+		{
+			for (int x = 600; x < 1880; x++) // 30 is image width
+			{	
+					pixel->color = background[i]; 
+					pixel->x = x;
+					pixel->y = y;
+		
+					drawPixel(pixel);
+					i++;
+					
+			}
+		}
+	}
+
+	/* free pixel's allocated memory */
+	free(pixel);
+	pixel = NULL;
+	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+	
+	return 0;
+}
+
 int drawGameScreen(int buttonPressed){
 
 	/* initialize + get FBS */
@@ -275,7 +342,8 @@ int moveFrog(int buttonPressed){
 					pixel->color = frogPtr[i]; 
 					pixel->x = x;
 					pixel->y = y;
-		
+
+					if (pixel->color != 0){
 					drawPixel(pixel);
 					}
 					i++;
