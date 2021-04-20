@@ -8,6 +8,9 @@ typedef struct {
 } Pixel;
 
 void drawPixel(Pixel *pixel);
+bool getStart();
+bool getQuit();
+int drawMainMenu();
 int drawGameScreen();
 int drawFrames();
 int drawFrog();
