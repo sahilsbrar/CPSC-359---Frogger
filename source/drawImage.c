@@ -68,6 +68,8 @@
 struct fbs framebufferstruct;
 
 int level = 1;
+int movesLeft = 50;
+int movesTaken = 0;
 int lastPressedX = 1240;	// was 1200 (offset by +39)
 int lastPressedY = 537;		// was 538 (offset by -3)
 bool startGame = false;
@@ -227,7 +229,7 @@ int drawGameScreen(int buttonPressed){
 	free(pixel);
 	pixel = NULL;
 	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
-	
+
 	return 0;
 }
 
@@ -317,7 +319,7 @@ int drawFrog(){
 	free(pixel);
 	pixel = NULL;
 	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
-	
+	drawMoves();
 	return 0;
 }
 
@@ -344,13 +346,14 @@ int moveFrog(int buttonPressed){
 					pixel->y = y;
 
 					if (pixel->color != 0){
-					drawPixel(pixel);
+						drawPixel(pixel);
 					}
 					i++;
 					
 			}
 		}
 		
+		movesTaken++;
 		//playSound(hop); // plays hop sound; FIX: currently pauses inputs to process!
 		
 	} else if(buttonPressed == 6){ // pressed DOWN
@@ -358,6 +361,7 @@ int moveFrog(int buttonPressed){
 		
 		if(lastPressedY != 537){	// was 538
 			lastPressedY = lastPressedY + 64;
+			movesTaken++;
 		}
 		
 		//lastPressedY = lastPressedY + 64;
@@ -371,7 +375,7 @@ int moveFrog(int buttonPressed){
 					pixel->y = y;
 		
 					if (pixel->color != 0){
-					drawPixel(pixel);
+						drawPixel(pixel);
 					}
 					i++;
 					
@@ -383,6 +387,7 @@ int moveFrog(int buttonPressed){
 
 		if(lastPressedX != 792){	// was 816, then 855 (hIndex was 13, now 14)
 			lastPressedX = lastPressedX - 64;
+			movesTaken++;
 		}
 
 		for (int y = lastPressedY; y < lastPressedY+63; y++)//30 is the image height
@@ -394,7 +399,7 @@ int moveFrog(int buttonPressed){
 					pixel->y = y;
 		
 					if (pixel->color != 0){
-					drawPixel(pixel);
+						drawPixel(pixel);
 					}
 					i++;
 					
@@ -407,6 +412,7 @@ int moveFrog(int buttonPressed){
 
 		if(lastPressedX != 1624){	// was 1584 (hIndex was 13, now 14)
 			lastPressedX = lastPressedX + 64;
+			movesTaken++;
 		}
 
 		for (int y = lastPressedY; y < lastPressedY+63; y++)//30 is the image height
@@ -418,7 +424,7 @@ int moveFrog(int buttonPressed){
 					pixel->y = y;
 		
 					if (pixel->color != 0){
-					drawPixel(pixel);
+						drawPixel(pixel);
 					}
 					i++;
 					
@@ -428,6 +434,79 @@ int moveFrog(int buttonPressed){
 	/* free pixel's allocated memory */
 	free(pixel);
 	pixel = NULL;
+	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+	drawMoves();
+	return 0;
+}
+
+int drawMoves(){
+
+	int num = movesLeft - movesTaken;
+	int mod = num % 10;
+	num = num / 10;
+	/* initialize + get FBS */
+	framebufferstruct = initFbInfo();
+
+	/* initialize a pixel */
+	Pixel *pixel;
+	pixel = malloc(sizeof(Pixel));
+	Pixel *pixel2;
+	pixel2 = malloc(sizeof(Pixel));
+	unsigned int quarter,byte,word;
+
+	
+	if(num > 0){
+
+		short int *numberPtr;
+		numberPtr=(short int *) numbersImg.pixel_data;
+		for (int y = 666; y < 720; y++)
+		{					
+			for (int x = 1368; x < 1399; x++) 
+			{	
+				pixel->color = numberPtr[(x-1368)+(y-665)*320+(32*num)];
+				pixel->x = x;
+				pixel->y = y;
+
+				drawPixel(pixel);
+			}
+		}
+
+		short int *numberPtr2;
+		numberPtr2=(short int *) numbersImg.pixel_data;
+		for (int y = 666; y < 720; y++)
+		{					
+			for (int x = 1400; x < 1431; x++) 
+			{	
+				pixel->color = numberPtr2[(x-1400)+(y-665)*320+(32*mod)];
+				pixel->x = x;
+				pixel->y = y;
+	
+				drawPixel(pixel);
+			}
+		}
+
+	} else if(num <= 0){
+
+		short int *numberPtr;
+		numberPtr=(short int *) numbersImg.pixel_data;
+		for (int y = 666; y < 720; y++)
+		{					
+			for (int x = 1368; x < 1399; x++) 
+			{	
+				pixel->color = numberPtr[(x-1368)+(y-665)*320+(32*mod)];
+				pixel->x = x;
+				pixel->y = y;
+	
+				drawPixel(pixel);
+			}
+		}
+	} 
+
+	/* free pixel's allocated memory */
+	free(pixel);
+	pixel = NULL;
+	free(pixel2);
+	pixel2 = NULL;
 	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
 	
 	return 0;

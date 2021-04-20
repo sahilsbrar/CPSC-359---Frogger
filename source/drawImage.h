@@ -15,5 +15,6 @@ int drawGameScreen();
 int drawFrames();
 int drawFrog();
 int moveFrog();
+int drawMoves();
 int drawBaddie();
 #endif
