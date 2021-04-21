@@ -230,8 +230,14 @@ int drawGameScreen(int buttonPressed){
 			pixel->x = x;
 			pixel->y = y;
 
-			drawPixel(pixel);int laneOccupancy[155] = {0,1,1,1,0,0,1,0,1,1,0,0,0,1,0,1,0,0,1,1,0,1,0,0,0,1,1,0,1,0,0,0,1,1,1,1,0,0,0,1,1,0,0,0,1,1,0,0,1,1,1,1,0,0,0,0,1,1,0,1,1,0,1,0,1,1,0,1,0,0,1,0,1,0,0,1,0,0,1,0,1,1,1,0,0,1,1,0,0,0,1,0,0,1,1,0,1,0,0,1,0,0,0,0,1,1,0,0,1,1,0,1,0,0,1,1,1,0,1,1,0,0,1,1,0,0,0,1,0,0,1,0,1,1,0,1,1,1,0,1,0,0,0,1,1,0,0,1,0,1,1,0,0,1,0};
+			drawPixel(pixel);
+			i++;
+		}
+	}
 
+	/* free pixel's allocated memory */
+	free(pixel);
+	pixel = NULL;
 	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
 
 	return 0;
@@ -772,7 +778,11 @@ int updateLaneOffsets(){
 	
 	for (int n = 0; n < 5; n++){	// for 5 lanes
 		
-		laneOffsets[n] += (int) laneSpeeds[n]*speedModifier;
+		if (level < 3){
+			laneOffsets[n] += (int) laneSpeeds[n]*speedModifier;
+		} else {
+			laneOffsets[n] -= (int) laneSpeeds[n]*speedModifier;
+		}
 		
 		if (laneOffsets[n] > 63){
 			

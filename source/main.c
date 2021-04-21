@@ -166,8 +166,6 @@ void print_Message(int message, int buttons[]){
                         if(startBool == true){ // start game
                             resetGame();
                             drawGameScreen(0);
-                            drawLanes();
-                            updateLaneOffsets();
                             drawFrog(1);
                             drawFrames();
                         }
@@ -187,6 +185,8 @@ void print_Message(int message, int buttons[]){
                         }else if(option == 2){ // user reset game
                             resetGame();
                             drawGameScreen(0);
+                            drawLanes();
+                            updateLaneOffsets();
                             drawFrog(1);
                             drawFrames();
                             paused = false;
@@ -196,7 +196,7 @@ void print_Message(int message, int buttons[]){
                     //move the frog
                     drawGameScreen(i);
                     drawLanes();
-                    updateLaneOffsets;
+                    updateLaneOffsets();
                     moveFrog(i);
                     drawFrames();
                 } 
