@@ -63,26 +63,28 @@
 	//return status;	
 //}
 
-
-
 struct fbs framebufferstruct;
 
+// Variables -> possible struct here?
 int level = 1;
-int movesLeft = 50;
+int movesLeft = 75;
 int movesTaken = 0;
 int lastPressedX = 1240;	// was 1200 (offset by +39)
 int lastPressedY = 537;		// was 538 (offset by -3)
 bool startGame = false;
 bool quitGame = false;
 
+// called by main to see if game is started
 bool getStart(){
 	return startGame;
 }
 
+// called by main to see if game is quit
 bool getQuit(){
 	return quitGame;
 }
 
+// Draws Main Menu Screen
 int drawMainMenu(int buttonPressed){
 
 	/* initialize + get FBS */
@@ -94,42 +96,29 @@ int drawMainMenu(int buttonPressed){
 	int i=0;
 	unsigned int quarter,byte,word;
 
-	if(buttonPressed == 5){
-		startGame = true;
+	short int *background;
+
+	if(buttonPressed == 5){ // If user attempting to move to start game option
+		startGame = true; // if user hits A BUTTON
 		quitGame = false;
 
-		short int *background=(short int *) startImg.pixel_data;
-		
-		for (int y = 0; y < 720; y++)//30 is the image height
-		{
-			for (int x = 600; x < 1880; x++) // 30 is image width
-			{	
-					pixel->color = background[i]; 
-					pixel->x = x;
-					pixel->y = y;
-		
-					drawPixel(pixel);
-					i++;
-					
-			}
-		}
-	}else{
+		background=(short int *) startImg.pixel_data;
+	}else{ //user is moving towards Quit game text
 		startGame = false;
 		quitGame = true;
-		short int *background=(short int *) quitImg.pixel_data;
 
-		for (int y = 0; y < 720; y++)//30 is the image height
-		{
-			for (int x = 600; x < 1880; x++) // 30 is image width
-			{	
-					pixel->color = background[i]; 
-					pixel->x = x;
-					pixel->y = y;
-		
-					drawPixel(pixel);
-					i++;
-					
-			}
+		background=(short int *) quitImg.pixel_data;
+	}
+
+	for (int y = 0; y < 720; y++){ // 720 is the image height
+		for (int x = 600; x < 1880; x++){ // 1280 is image width
+
+			pixel->color = background[i]; 
+			pixel->x = x;
+			pixel->y = y;
+
+			drawPixel(pixel);
+			i++;
 		}
 	}
 
@@ -141,14 +130,15 @@ int drawMainMenu(int buttonPressed){
 	return 0;
 }
 
+// Draw the actual game field
 int drawGameScreen(int buttonPressed){
 
 	/* initialize + get FBS */
 	framebufferstruct = initFbInfo();
 	
-	if(lastPressedY <= 155 && buttonPressed == 5){
+	if(lastPressedY <= 155 && buttonPressed == 5 && level != 4){ // checking if moving up to next level
 		level = level + 1;
-		lastPressedY = 601;	// was 602
+		lastPressedY = 601;
 	}
 
 	/* initialize a pixel */
@@ -157,71 +147,30 @@ int drawGameScreen(int buttonPressed){
 	int i=0;
 	unsigned int quarter,byte,word;
 
-	if(level == 1){
-		short int *background=(short int *) lvl_one.pixel_data;
+	short int *background;
 
-		for (int y = 0; y < 720; y++)//30 is the image height
-		{
-			for (int x = 600; x < 1880; x++) // 30 is image width
-			{	
-					pixel->color = background[i]; 
-					pixel->x = x;
-					pixel->y = y;
-		
-					drawPixel(pixel);
-					i++;
-					
-			}
-		}
+	if(level == 1){
+		background=(short int *) lvl_one.pixel_data;
 
 	} else if(level == 2){
-		short int *background=(short int *) lvl_two.pixel_data;
-
-		for (int y = 0; y < 720; y++)//30 is the image height
-		{
-			for (int x = 600; x < 1880; x++) // 30 is image width
-			{	
-					pixel->color = background[i]; 
-					pixel->x = x;
-					pixel->y = y;
-		
-					drawPixel(pixel);
-					i++;
-					
-			}
-		}
+		background=(short int *) lvl_two.pixel_data;
 
 	} else if(level == 3){
-		short int *background=(short int *) lvl_three.pixel_data;
+		background=(short int *) lvl_three.pixel_data;
 
-		for (int y = 0; y < 720; y++)//30 is the image height
-		{
-			for (int x = 600; x < 1880; x++) // 30 is image width
-			{	
-					pixel->color = background[i]; 
-					pixel->x = x;
-					pixel->y = y;
-		
-					drawPixel(pixel);
-					i++;
-					
-			}
-		}
 	}else{
-		short int *background=(short int *) lvl_four.pixel_data;
+		background=(short int *) lvl_four.pixel_data;
+	}
 
-		for (int y = 0; y < 720; y++)//30 is the image height
-		{
-			for (int x = 600; x < 1880; x++) // 30 is image width
-			{	
-					pixel->color = background[i]; 
-					pixel->x = x;
-					pixel->y = y;
-		
-					drawPixel(pixel);
-					i++;
-					
-			}
+	for (int y = 0; y < 720; y++){ // 720 is the image height
+		for (int x = 600; x < 1880; x++){ // 1280 is image width	
+
+			pixel->color = background[i]; 
+			pixel->x = x;
+			pixel->y = y;
+
+			drawPixel(pixel);
+			i++;	
 		}
 	}
 
@@ -233,6 +182,7 @@ int drawGameScreen(int buttonPressed){
 	return 0;
 }
 
+// draws frames on side for overflow of obstacles
 int drawFrames(){
 
 	/* initialize + get FBS */
@@ -243,12 +193,12 @@ int drawFrames(){
 	pixelLeft = malloc(sizeof(Pixel));
 	int i=0;
 	unsigned int quarter,byte,word;
+
 	/* left frame */
 	short int *leftFrame=(short int *) leftBorder.pixel_data;
-	for (int y = 0; y < 720; y++)//30 is the image height
-	{
-		for (int x = 600; x < 792; x++) // 30 is image width
-		{	
+	for (int y = 0; y < 720; y++){ // 720 is the image height
+		for (int x = 600; x < 792; x++){ // 192 is image width
+
 				pixelLeft->color = leftFrame[i]; 
 				pixelLeft->x = x;
 				pixelLeft->y = y;
@@ -262,12 +212,12 @@ int drawFrames(){
 	Pixel *pixelRight;
 	pixelRight = malloc(sizeof(Pixel));
 	int j=0;
+
 	/* right frame */
 	short int *rightFrame=(short int *) rightBorder.pixel_data;
-	for (int y = 0; y < 720; y++)//30 is the image height
-	{
-		for (int x = 1688; x < 1880; x++) // 30 is image width
-		{	
+	for (int y = 0; y < 720; y++){ // 720 is the image height
+		for (int x = 1688; x < 1880; x++){ // 192 is image width
+		
 				pixelRight->color = rightFrame[j]; 
 				pixelRight->x = x;
 				pixelRight->y = y;
@@ -287,34 +237,40 @@ int drawFrames(){
 	return 0;
 }
 
-int drawFrog(){
+// Draws frog in initial position, or when coming down a level
+int drawFrog(int direction){
+
 	/* initialize + get FBS */
 	framebufferstruct = initFbInfo();
 	
-	short int *frogPtr=(short int *) frogFWD.pixel_data;
-	
-	//printf("Hola, %d",frogPtr[64]);
+	short int *frogPtr;
+
+	if(direction == 1){ // initial position
+		frogPtr=(short int *) frogFWD.pixel_data;
+	}else{ // coming down a level
+		frogPtr=(short int *) frogBWD.pixel_data;
+	}
 	
 	/* initialize a pixel */
 	Pixel *pixel;
 	pixel = malloc(sizeof(Pixel));
 	int i=0;
 	unsigned int quarter,byte,word;
-	for (int y = 537; y < 600; y++)//30 is the image height; was 538,602
-	{					// ^ changed from 601 to check something 
-		for (int x = 1240; x < 1304; x++) // 30 is image width; was 1200,1264
-		{	
-				pixel->color = frogPtr[i+64];	//+64];
-				pixel->x = x;
-				pixel->y = y;
-	
-				if (pixel->color != 0){
-					drawPixel(pixel);
-				}
-				i++;
-				
+
+	for (int y = lastPressedY; y < lastPressedY + 63; y++){ // 64 is the image height
+		for (int x = lastPressedX; x < lastPressedX+64; x++){ // 64 is image width
+
+			pixel->color = frogPtr[i+64];
+			pixel->x = x;
+			pixel->y = y;
+
+			if (pixel->color != 0){ // dont print black pixels (for around frog)
+				drawPixel(pixel);
+			}
+			i++;
 		}
 	}
+
 	/* free pixel's allocated memory */
 	free(pixel);
 	pixel = NULL;
@@ -323,7 +279,9 @@ int drawFrog(){
 	return 0;
 }
 
+// draw frog in new position based on controller input
 int moveFrog(int buttonPressed){
+
 	/* initialize + get FBS */
 	framebufferstruct = initFbInfo();
 	
@@ -334,116 +292,159 @@ int moveFrog(int buttonPressed){
 	unsigned int quarter,byte,word;
 
 	if(buttonPressed == 5){ // pressed UP
-		
-		short int *frogPtr=(short int *) frogFWD.pixel_data;
-		lastPressedY = lastPressedY - 64;
-		for (int y = lastPressedY; y < lastPressedY+63; y++)//30 is the image height
-		{
-			for (int x = lastPressedX; x < lastPressedX+64; x++) // 30 is image width
-			{	
-					pixel->color = frogPtr[i+64]; 
-					pixel->x = x;
-					pixel->y = y;
+		if(lastPressedY <= 155 && level == 4){	// Restricting level 4 top movements through gate only (feature)
+			if(lastPressedX == 1176 || lastPressedX == 1240){
+				lastPressedY = lastPressedY - 64;
+				movesTaken++; // incement moves taken
+				//win here
+			}else{
+				lastPressedY = lastPressedY; // cannot move due to bounds
+			}
+		}else{ // regular up movements
+			lastPressedY = lastPressedY - 64;
+			movesTaken++; // increment moves taken
+		}
 
-					if (pixel->color != 0){
-						drawPixel(pixel);
-					}
-					i++;
-					
+		short int *frogPtr=(short int *) frogFWD.pixel_data; // set forward movement image
+		
+		for (int y = lastPressedY; y < lastPressedY+63; y++){ //64 is the image height
+			for (int x = lastPressedX; x < lastPressedX+64; x++){ // 64 is image width
+		
+				pixel->color = frogPtr[i+64]; 
+				pixel->x = x;
+				pixel->y = y;
+
+				if (pixel->color != 0){ // dont print black pixels (for around frog)
+					drawPixel(pixel);
+				}
+				i++;	
 			}
 		}
 		
-		movesTaken++;
 		//playSound(hop); // plays hop sound; FIX: currently pauses inputs to process!
 		
 	} else if(buttonPressed == 6){ // pressed DOWN
-		short int *frogPtr=(short int *) frogBWD.pixel_data;
+
+		short int *frogPtr=(short int *) frogBWD.pixel_data; // set downward movement image
 		
-		if(lastPressedY != 537){	// was 538
-			lastPressedY = lastPressedY + 64;
-			movesTaken++;
-		}
-		
-		//lastPressedY = lastPressedY + 64;
-		
-		for (int y = lastPressedY; y < lastPressedY+63; y++)//30 is the image height
-		{
-			for (int x = lastPressedX; x < lastPressedX+64; x++) // 30 is image width
-			{	
+		if(lastPressedY == 537 && level != 1){ // If the user is moving back a level
+			level--; // go back a level
+			lastPressedY = 153; // set appropriate location
+			movesTaken++; // increment moves taken
+			drawGameScreen(6); // redraw game screen based on moving back a level
+			drawFrames(); // draw frames for obstacles overflow
+			drawFrog(2); // redraw frog facing down
+
+		} else if(lastPressedY != 537){	// checking if user is moving down (as long as not on lvl1 and on bottom row)
+
+			lastPressedY = lastPressedY + 64; // move down
+			movesTaken++; // increment moves taken
+
+			for (int y = lastPressedY; y < lastPressedY+63; y++){ //64 is the image height
+				for (int x = lastPressedX; x < lastPressedX+64; x++){ // 64 is image width	
+
 					pixel->color = frogPtr[i+64]; 
 					pixel->x = x;
 					pixel->y = y;
 		
-					if (pixel->color != 0){
+					if (pixel->color != 0){ // dont print black pixels (for around the frog)
 						drawPixel(pixel);
 					}
-					i++;
-					
+					i++;	
+				}
+			}
+
+		} else{ // keep user in same spot, dont increment moves taken
+			for (int y = lastPressedY; y < lastPressedY+63; y++){ // 64 is the image height
+				for (int x = lastPressedX; x < lastPressedX+64; x++){ // 64 is image width
+		
+						pixel->color = frogPtr[i+64]; 
+						pixel->x = x;
+						pixel->y = y;
+			
+						if (pixel->color != 0){ // dont print black pixels (around frog)
+							drawPixel(pixel);
+						}
+						i++;
+				}
 			}
 		}
+		
 	} else if(buttonPressed == 7){ // pressed LEFT
 
-		short int *frogPtr=(short int *) frogLWD.pixel_data;
+		short int *frogPtr=(short int *) frogLWD.pixel_data; // set image to let movement
 
-		if(lastPressedX != 792){	// was 816, then 855 (hIndex was 13, now 14)
-			lastPressedX = lastPressedX - 64;
-			movesTaken++;
+		// checking if user is trying to move on gate (level 4) from left, or off gate (feature to make win exit)
+		if(lastPressedY <= 155 && (lastPressedX == 1304 || lastPressedX == 1176)){ 
+
+			if(level != 4){ //if not on level 4, make the move like normal
+				lastPressedX = lastPressedX - 64; // move frog position
+				movesTaken++; // increment moves taken
+			}
+
+		} else if(lastPressedX != 792){	// make sure player doesnt move left out of bounds
+			lastPressedX = lastPressedX - 64; // move player 
+			movesTaken++; // increment moves taken
 		}
 
-		for (int y = lastPressedY; y < lastPressedY+63; y++)//30 is the image height
-		{
-			for (int x = lastPressedX; x < lastPressedX+64; x++) // 30 is image width
-			{	
+		for (int y = lastPressedY; y < lastPressedY+63; y++){ // 64 is the image height
+			for (int x = lastPressedX; x < lastPressedX+64; x++){ // 64 is image width
+
 					pixel->color = frogPtr[i+64]; 
 					pixel->x = x;
 					pixel->y = y;
 		
-					if (pixel->color != 0){
+					if (pixel->color != 0){ // dont print black pixels around frog
 						drawPixel(pixel);
 					}
 					i++;
-					
 			}
 		}
 		
 	} else{ // pressed RIGHT
 
-		short int *frogPtr=(short int *) frogRWD.pixel_data;
-
-		if(lastPressedX != 1624){	// was 1584 (hIndex was 13, now 14)
-			lastPressedX = lastPressedX + 64;
-			movesTaken++;
+		short int *frogPtr=(short int *) frogRWD.pixel_data; // use right moving image
+		
+		// checking if user is trying to move onto/off draw bridge (lvl4) from the right (feature for win condition)
+		if(lastPressedY <= 155 && (lastPressedX == 1112 || lastPressedX == 1240)){
+			if(level != 4){ // if not on level 4
+				lastPressedX = lastPressedX + 64; // move like normal
+				movesTaken++; // increment moves taken
+			}
+		} else if(lastPressedX != 1624){ // otherwise check and prevent user from moving out of bounds (right side)
+			lastPressedX = lastPressedX + 64; // move frog
+			movesTaken++; // increment moves taken
 		}
 
-		for (int y = lastPressedY; y < lastPressedY+63; y++)//30 is the image height
-		{
-			for (int x = lastPressedX; x < lastPressedX+64; x++) // 30 is image width
-			{	
+		for (int y = lastPressedY; y < lastPressedY+63; y++){ //64 is the image height
+			for (int x = lastPressedX; x < lastPressedX+64; x++){ // 64 is image width
+
 					pixel->color = frogPtr[i+64]; 
 					pixel->x = x;
 					pixel->y = y;
 		
-					if (pixel->color != 0){
+					if (pixel->color != 0){ // dont draw black pixels around frog
 						drawPixel(pixel);
 					}
 					i++;
-					
 			}
 		}
 	}	
+
 	/* free pixel's allocated memory */
 	free(pixel);
 	pixel = NULL;
 	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
-	drawMoves();
+	drawMoves(); // update moves left on bottom on screen
 	return 0;
 }
 
+// function to display moves remaining on screen
 int drawMoves(){
 
 	int num = movesLeft - movesTaken;
-	int mod = num % 10;
-	num = num / 10;
+	int mod = num % 10; // second digit
+	num = num / 10; // first digit
 	/* initialize + get FBS */
 	framebufferstruct = initFbInfo();
 
@@ -455,14 +456,14 @@ int drawMoves(){
 	unsigned int quarter,byte,word;
 
 	
-	if(num > 0){
+	if(num > 0){ // if num isnt 0, means 2 digit number
 
+		// first digit
 		short int *numberPtr;
 		numberPtr=(short int *) numbersImg.pixel_data;
-		for (int y = 666; y < 720; y++)
-		{					
-			for (int x = 1368; x < 1399; x++) 
-			{	
+		for (int y = 666; y < 720; y++){					
+			for (int x = 1368; x < 1399; x++) {
+
 				pixel->color = numberPtr[(x-1368)+(y-665)*320+(32*num)];
 				pixel->x = x;
 				pixel->y = y;
@@ -471,6 +472,7 @@ int drawMoves(){
 			}
 		}
 
+		// second digit
 		short int *numberPtr2;
 		numberPtr2=(short int *) numbersImg.pixel_data;
 		for (int y = 666; y < 720; y++)
@@ -485,14 +487,13 @@ int drawMoves(){
 			}
 		}
 
-	} else if(num <= 0){
+	} else if(num <= 0){ // means only one digit
 
 		short int *numberPtr;
 		numberPtr=(short int *) numbersImg.pixel_data;
-		for (int y = 666; y < 720; y++)
-		{					
-			for (int x = 1368; x < 1399; x++) 
-			{	
+		for (int y = 666; y < 720; y++){					
+			for (int x = 1368; x < 1399; x++){	
+				
 				pixel->color = numberPtr[(x-1368)+(y-665)*320+(32*mod)];
 				pixel->x = x;
 				pixel->y = y;
