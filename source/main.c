@@ -166,6 +166,7 @@ void print_Message(int message, int buttons[]){
                         if(startBool == true){ // start game
                             resetGame();
                             drawGameScreen(0);
+                            drawLanes();
                             drawFrog(1);
                             drawFrames();
                         }

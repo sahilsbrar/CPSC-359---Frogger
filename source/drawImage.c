@@ -679,7 +679,6 @@ int drawBaddie(int lane, int level, int offset){
 					drawPixel(pixel);
 				}
 				i++;
-				
 		}
 	}
 	/* free pixel's allocated memory */
