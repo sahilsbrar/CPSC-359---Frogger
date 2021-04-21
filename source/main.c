@@ -42,6 +42,7 @@ TO COMPILE & RUN IN LINUX TERMINAL, USE:
 
 bool startBool = false;
 bool quitBool = false;
+bool paused = false;
 
 /*  Functions  */
 
@@ -146,27 +147,48 @@ void print_Message(int message, int buttons[]){
                                                                         // Array indices 1 - 12 are the labels for each of the SNES controller buttons
                                                                         
     if(message == 0){                                                   // Print start message
-        printf("Created by Sahil Brar and Paul Serafini\n");
-        printf("\nPlease press a button...\n");
+        // printf("Created by Sahil Brar and Paul Serafini\n");
+        // printf("\nPlease press a button...\n");
     } else if(message == 1 && buttons[4] != 0){                         // If button has been pressed; "message == 1" for case of future functionality
         for(int i = 1; i <= 16; i++){                                   // Goes up to 16 to fit SNES controller protocol, noting 13-16 to be undefined
             if(buttons[i] == 0 && i != 4 && i < 13){                    
-                printf("\nYou have pressed %s\n", labels[i]);           // Prints pressed button message with appropriate label
+                // printf("\nYou have pressed %s\n", labels[i]);           // Prints pressed button message with appropriate label
 
-                if(startBool == false){
+                if(startBool == false){ // on main menu
                     if(i == 5 || i == 6){
-                        drawMainMenu(i);
+                        drawMainMenu(i); // cycling between main menu option
                         
-                    }else if(i == 9){
-                        startBool = getStart();
-                        quitBool = getQuit();
+                    }else if(i == 9){ // user made a selection
+                        startBool = getStart(); //start game
+                        quitBool = getQuit(); // quit
                         
-                        if(startBool == true){
+                        if(startBool == true){ // start game
+                            resetGame();
                             drawGameScreen(0);
                             drawLanes();
                             updateLaneOffsets();
                             drawFrog(1);
                             drawFrames();
+                        }
+                    }
+                }else if(paused == true){ // if paused
+                    if(i == 5 || i == 6){
+                        drawPause(i); // cycle between options (UP or DOWN pressed)
+
+                    } else if(i == 9){ // if user selects option
+                        int option = getOption(); // get option
+
+                        if(option == 1){ // user quit to main menu
+                            drawMainMenu(1);
+                            startBool = false;
+                            paused = false;
+
+                        }else if(option == 2){ // user reset game
+                            resetGame();
+                            drawGameScreen(0);
+                            drawFrog(1);
+                            drawFrames();
+                            paused = false;
                         }
                     }
                 }else if(i >= 5 && i <= 8){
@@ -176,12 +198,12 @@ void print_Message(int message, int buttons[]){
                     updateLaneOffsets;
                     moveFrog(i);
                     drawFrames();
-                }
+                } 
             }
         }
-        printf("\nPlease press a button...\n");                         // Here allows successive printing of buttons pressed on same physical "frame"
+        // printf("\nPlease press a button...\n");                         // Here allows successive printing of buttons pressed on same physical "frame"
     } else{                                                             // If start button has been pressed; not explicit, other codes may be required
-        printf("\nProgram is terminating...\n");
+        // printf("\nProgram is terminating...\n");
     }
 }
 
@@ -245,9 +267,22 @@ void read_SNES(unsigned int *gpio){
             }
             
             if(buttons[4] == 0){                                        // START button has been pressed
-                quitBool = true;                                     // Stops the current while-loop
+                if(startBool == true){ // make sure not on main menu
+
+                    if(paused == false){ // if not paused, pause
+                        paused = true;    
+                        drawPause(5);
+
+                    }else{ // already paused and hit START, resumes game
+                        drawGameScreen(0);
+                        drawFrog(1);
+                        drawFrames();
+                        paused = false;
+                    }
+                }
             }
         }
+        clear();
     //status = false;                                                   // For future functionality (dealing with START menu, game states, and whatnot)
     //}                                                                 // For future functionality (dealing with START menu, game states, and whatnot)
 }
@@ -263,6 +298,7 @@ void read_SNES(unsigned int *gpio){
 // Use: runs our program
 
 int main(){
+    resetGame();
     drawMainMenu(5);
     unsigned int *gpio = getGPIOPtr();                                  // Obtains the base GPIO address
     
