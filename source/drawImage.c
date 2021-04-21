@@ -66,6 +66,14 @@
 
 struct fbs framebufferstruct;
 
+int laneOffsets[5] = {25,35,15,0,10};				// pixels offset
+int laneIndices[5] = {0,30,60,90,120};
+double laneSpeeds[5] = {8.0,-12.0,10.0,-9.0,8.0};
+double speedModifier = 5.0;
+
+int laneOccupancy[155] = {0,1,1,1,0,0,1,0,1,1,0,0,0,1,0,1,0,0,1,1,0,1,0,0,0,1,1,0,1,0,0,0,1,1,1,1,0,0,0,1,1,0,0,0,1,1,0,0,1,1,1,1,0,0,0,0,1,1,0,1,1,0,1,0,1,1,0,1,0,0,1,0,1,0,0,1,0,0,1,0,1,1,1,0,0,1,1,0,0,0,1,0,0,1,1,0,1,0,0,1,0,0,0,0,1,1,0,0,1,1,0,1,0,0,1,1,1,0,1,1,0,0,1,1,0,0,0,1,0,0,1,0,1,1,0,1,1,1,0,1,0,0,0,1,1,0,0,1,0,1,1,0,0,1,0};
+
+
 // Variables -> possible struct here?
 int level = 1;
 int movesLeft = 75;
@@ -82,7 +90,7 @@ void resetGame(){
 	movesLeft = 75;
 	movesTaken = 0;
 	lastPressedX = 640;	// was 1200 (offset by +39)
-	lastPressedY = 537;		// was 538 (offset by -3)
+	lastPressedY = 537;		// was 538 (offset by -1)
 	startGame = false;
 	quitGame = false;
 	goMain = false;
@@ -223,7 +231,7 @@ int drawGameScreen(int buttonPressed){
 			pixel->y = y;
 
 			drawPixel(pixel);
-			i++;	
+			i++;
 		}
 	}
 
@@ -671,7 +679,6 @@ int drawBaddie(int lane, int level, int offset){
 					drawPixel(pixel);
 				}
 				i++;
-				
 		}
 	}
 	/* free pixel's allocated memory */
@@ -679,5 +686,123 @@ int drawBaddie(int lane, int level, int offset){
 	pixel = NULL;
 	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
 	
+	return 0;
+}
+
+int drawLanes(){	// offset from 0-63?62?
+	/* initialize + get FBS */
+	framebufferstruct = initFbInfo();
+	
+	Pixel *pixel;
+	pixel = malloc(sizeof(Pixel));
+	
+	for (int n = 1; n < 6; n++){				// for 5 lanes
+		
+		//printf("\n And now we have that n = %i\n",n);
+		//printf("Lane offset is: %i .\n",laneOffsets[n-1]);
+		//printf("Lane index is: %i .\n",laneIndices[n-1]);
+		
+		for (int q = 0; q < 16; q++){			// check 16 indices (12 b/c no cutting rn)
+			
+			if (laneOccupancy[(laneIndices[n-1] + q) % 155] == 1){
+				
+				int offset = laneOffsets[(n-1)] + q*64;	// 64 is per grid space
+				int lane = n;
+				
+				if (lane == 2){
+					q++;	// avoid printing overlapping, double-long obstacles
+				}
+				
+				if (n < 3){
+					--lane;	// to match indices for pixel colour in loop
+				}
+				
+				int vertOff = 0;
+				if (lane >= 2){
+					vertOff = 64;	// to match indices for pixel colour in loop, only past double
+				}
+					
+				short int *baddiePtr;
+				
+				int twoLongObs = 0;
+				if (lane == 1){		// input is actually 2 before decrementation
+					twoLongObs = 64;
+				}
+				
+				if (level == 1) {
+					baddiePtr=(short int *) lvlOne_Obs.pixel_data;
+				}
+				else if (level == 2) {
+					baddiePtr=(short int *) lvlTwo_Obs.pixel_data;
+				}
+				else if (level == 3) {
+					baddiePtr=(short int *) lvlThree_Obs.pixel_data;
+				}
+				else {
+					baddiePtr=(short int *) lvlFour_Obs.pixel_data;
+				}
+				
+				for (int y = 474 - lane*64; y < 537 - lane*64; y++)//30 is the image height; was 538,602
+				{					
+					for (int x = 168; x < (232 + twoLongObs); x++) // 30 is image width; was 1200,1264
+					{	// ^ was 832/896; additionally -600 from 768/832
+							pixel->color = baddiePtr[(x-168)+(y-473+lane*64)*384 + lane*64];
+							pixel->x = x + offset;	// x offset (passed) based upon 
+							pixel->y = y + vertOff;	// vertical offset required for lanes 3 - 5 to reclaim lane shift from double-obs
+				
+							if (pixel->color != 0){
+								drawPixel(pixel);
+							}
+							
+							
+					}
+				}	// end of individual pixel loop
+				// printf("\n We made it!\n"); TEST
+				
+			}	// printed one index (q, if 1) of lane n
+		}	// end of positional iteration
+	}	// end of lane loop
+
+	/* free pixel's allocated memory */
+	free(pixel);
+	pixel = NULL;
+	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+	
+	return 0;
+}
+
+int updateLaneOffsets(){
+	
+	//printf("Lane 1 Offset is: %i", laneOffsets[0]);	// TEST
+	
+	for (int n = 0; n < 5; n++){	// for 5 lanes
+		
+		if (level < 3){
+			laneOffsets[n] += (int) laneSpeeds[n]*speedModifier;
+		} else {
+			laneOffsets[n] -= (int) laneSpeeds[n]*speedModifier;
+		}
+		
+		if (laneOffsets[n] > 63){
+			
+			laneOffsets[n] = laneOffsets[n] % 64;
+			
+			--laneIndices[n];
+			
+			if (laneIndices[n] < 0){
+				laneIndices[n] =+ 154;
+			}
+			
+		}
+		
+		else if (laneOffsets[n] < -63){
+			
+			laneOffsets[n] = laneOffsets[n] % 64;
+			
+			laneIndices[n]++;
+			laneIndices[n] = laneIndices[n] % 154;
+		}
+		
+	}
 	return 0;
 }

@@ -7,6 +7,11 @@ typedef struct {
 	int x, y;
 } Pixel;
 
+int level;
+int laneOffsets[5];
+double speedModifier;
+int laneOccupancy[155];
+
 void drawPixel(Pixel *pixel);
 bool getStart();
 bool getQuit();
@@ -21,4 +26,6 @@ int drawFrog();
 int moveFrog();
 int drawMoves();
 int drawBaddie();
+int drawLanes();
+int updateLaneOffsets();	// updates the offsets for the lanes; to be clock-synchronized
 #endif

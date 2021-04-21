@@ -7,7 +7,8 @@ Lecturer: Dr. Jalal Kawash
 Authors: Paul Serafini (ID# 30077288), Sahil Brar (ID# 30021440)
 
 Assignment Objective(s):
-Create a device driver for the SNES controller.
+Create a Frogger game on the Raspberry Pi which works in tandem with
+our previous implementation of a device driver for the SNES controller.
 
 TO COMPILE & RUN IN LINUX TERMINAL, USE:
 
@@ -165,6 +166,7 @@ void print_Message(int message, int buttons[]){
                         if(startBool == true){ // start game
                             resetGame();
                             drawGameScreen(0);
+                            drawLanes();
                             drawFrog(1);
                             drawFrames();
                         }
@@ -184,6 +186,8 @@ void print_Message(int message, int buttons[]){
                         }else if(option == 2){ // user reset game
                             resetGame();
                             drawGameScreen(0);
+                            drawLanes();
+                            updateLaneOffsets();
                             drawFrog(1);
                             drawFrames();
                             paused = false;
@@ -192,6 +196,8 @@ void print_Message(int message, int buttons[]){
                 }else if(i >= 5 && i <= 8){
                     //move the frog
                     drawGameScreen(i);
+                    drawLanes();
+                    updateLaneOffsets();
                     moveFrog(i);
                     drawFrames();
                 } 
