@@ -163,6 +163,8 @@ void print_Message(int message, int buttons[]){
                         
                         if(startBool == true){
                             drawGameScreen(0);
+                            drawLanes();
+                            updateLaneOffsets();
                             drawFrog(1);
                             drawFrames();
                         }
@@ -170,6 +172,8 @@ void print_Message(int message, int buttons[]){
                 }else if(i >= 5 && i <= 8){
                     //move the frog
                     drawGameScreen(i);
+                    drawLanes();
+                    updateLaneOffsets;
                     moveFrog(i);
                     drawFrames();
                 }
