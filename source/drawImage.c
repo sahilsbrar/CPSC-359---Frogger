@@ -90,7 +90,7 @@ void resetGame(){
 	movesLeft = 75;
 	movesTaken = 0;
 	lastPressedX = 640;	// was 1200 (offset by +39)
-	lastPressedY = 537;		// was 538 (offset by -3)
+	lastPressedY = 537;		// was 538 (offset by -1)
 	startGame = false;
 	quitGame = false;
 	goMain = false;
@@ -739,9 +739,9 @@ int drawLanes(){	// offset from 0-63?62?
 				
 				for (int y = 474 - lane*64; y < 537 - lane*64; y++)//30 is the image height; was 538,602
 				{					
-					for (int x = 768; x < (832 + twoLongObs); x++) // 30 is image width; was 1200,1264
+					for (int x = 168; x < (232 + twoLongObs); x++) // 30 is image width; was 1200,1264
 					{	// ^ was 832/896; additionally -600 from 768/832
-							pixel->color = baddiePtr[(x-768)+(y-473+lane*64)*384 + lane*64];
+							pixel->color = baddiePtr[(x-168)+(y-473+lane*64)*384 + lane*64];
 							pixel->x = x + offset;	// x offset (passed) based upon 
 							pixel->y = y + vertOff;	// vertical offset required for lanes 3 - 5 to reclaim lane shift from double-obs
 				

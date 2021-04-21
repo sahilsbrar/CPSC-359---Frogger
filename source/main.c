@@ -7,7 +7,8 @@ Lecturer: Dr. Jalal Kawash
 Authors: Paul Serafini (ID# 30077288), Sahil Brar (ID# 30021440)
 
 Assignment Objective(s):
-Create a device driver for the SNES controller.
+Create a Frogger game on the Raspberry Pi which works in tandem with
+our previous implementation of a device driver for the SNES controller.
 
 TO COMPILE & RUN IN LINUX TERMINAL, USE:
 
