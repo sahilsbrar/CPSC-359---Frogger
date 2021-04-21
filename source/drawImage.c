@@ -5,6 +5,7 @@
 #include <string.h>	//sounds
 #include "framebuffer.h"
 #include "drawImage.h"
+#include <time.h>
 
 #include "lostLife.h" 		// lostLife.pixel_data
 // levels
@@ -69,21 +70,25 @@ struct fbs framebufferstruct;
 int laneOffsets[5] = {25,35,15,0,10};				// pixels offset
 int laneIndices[5] = {0,30,60,90,120};
 double laneSpeeds[5] = {8.0,-12.0,10.0,-9.0,8.0};
-double speedModifier = 5.0;
+double speedModifier = 1.0;
 
 int laneOccupancy[155] = {0,1,1,1,0,0,1,0,1,1,0,0,0,1,0,1,0,0,1,1,0,1,0,0,0,1,1,0,1,0,0,0,1,1,1,1,0,0,0,1,1,0,0,0,1,1,0,0,1,1,1,1,0,0,0,0,1,1,0,1,1,0,1,0,1,1,0,1,0,0,1,0,1,0,0,1,0,0,1,0,1,1,1,0,0,1,1,0,0,0,1,0,0,1,1,0,1,0,0,1,0,0,0,0,1,1,0,0,1,1,0,1,0,0,1,1,1,0,1,1,0,0,1,1,0,0,0,1,0,0,1,0,1,1,0,1,1,1,0,1,0,0,0,1,1,0,0,1,0,1,1,0,0,1,0};
 
 
 // Variables -> possible struct here?
 int level = 1;
+int score = 0;
 int movesLeft = 75;
 int movesTaken = 0;
 int lastPressedX = 640;	// was 1200 (offset by +39)
-int lastPressedY = 537;		// was 538 (offset by -3)
+int lastPressedY = 537;	// was 538 (offset by -3)
 bool startGame = false;
 bool quitGame = false;
 bool goMain = false;
 bool reset = false;
+bool browniePts = false;
+double timeLeft = 39.9;	// start with 40 seconds
+//int timeLeft = 40;	// start with 40 seconds
 
 void resetGame(){
 	level = 1;
@@ -95,6 +100,7 @@ void resetGame(){
 	quitGame = false;
 	goMain = false;
 	reset = false;
+	// maybe can reset time here, but believe presently needless
 }
 
 int getOption(){
@@ -343,6 +349,10 @@ int drawPause(int buttonPressed){
 // Draws frog in initial position, or when coming down a level
 int drawFrog(int direction){
 
+	if(lastPressedY < 100){	// is at the end!
+		return 0;	// don't print dat froggo
+	}
+
 	/* initialize + get FBS */
 	framebufferstruct = initFbInfo();
 	
@@ -396,14 +406,20 @@ int moveFrog(int buttonPressed){
 		if(lastPressedY <= 155 && level == 4){	// Restricting level 4 top movements through gate only (feature)
 			if(lastPressedX == 576 || lastPressedX == 640){
 				lastPressedY = lastPressedY - 64;
-				movesTaken++; // incement moves taken
+				movesTaken++;	// increment moves taken
+				
+				if(browniePts == false){	// MAKES SURE THAT WINNING PTS GAIN ONLY HAPPENS ONCE!!
+					score += 100;	// good for you
+					browniePts = true;	// such wow
+				}
 				//win here
 			}else{
 				lastPressedY = lastPressedY; // cannot move due to bounds
 			}
 		}else{ // regular up movements
 			lastPressedY = lastPressedY - 64;
-			movesTaken++; // increment moves taken
+			movesTaken++;	// increment moves taken
+			score += 10;	// you deserve this so much
 		}
 
 		short int *frogPtr=(short int *) frogFWD.pixel_data; // set forward movement image
@@ -433,6 +449,7 @@ int moveFrog(int buttonPressed){
 			lastPressedY = 153; // set appropriate location
 			movesTaken++; // increment moves taken
 			drawGameScreen(6); // redraw game screen based on moving back a level
+			drawLanes();
 			drawFrames(); // draw frames for obstacles overflow
 			drawFrog(2); // redraw frog facing down
 
@@ -536,7 +553,8 @@ int moveFrog(int buttonPressed){
 	free(pixel);
 	pixel = NULL;
 	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
-	drawMoves(); // update moves left on bottom on screen
+	drawMoves();	// update moves left on bottom on screen
+	drawScore();	// update score total at screen's bottom
 	return 0;
 }
 
@@ -553,12 +571,16 @@ int drawMoves(){
 	Pixel *pixel;
 	pixel = malloc(sizeof(Pixel));
 
+	// TEST
+	short int *numberPtr;
+	numberPtr=(short int *) numbersImg.pixel_data;
+	
 	
 	if(num > 0){ // if num isnt 0, means 2 digit number
 
 		// first digit
-		short int *numberPtr;
-		numberPtr=(short int *) numbersImg.pixel_data;
+					//short int *numberPtr;
+					//numberPtr=(short int *) numbersImg.pixel_data;
 		for (int y = 666; y < 720; y++){					
 			for (int x = 768; x < 799; x++) {
 
@@ -573,17 +595,18 @@ int drawMoves(){
 		}
 
 		// second digit
-		short int *numberPtr2;
-		numberPtr2=(short int *) numbersImg.pixel_data;
+					//short int *numberPtr2;
+					//numberPtr2=(short int *) numbersImg.pixel_data;
 		for (int y = 666; y < 720; y++)
 		{					
 			for (int x = 800; x < 831; x++) 
 			{	
-				pixel->color = numberPtr2[(x-800)+(y-665)*320+(32*mod)];
+				pixel->color = numberPtr[(x-800)+(y-665)*320+(32*mod)];
+				// ^ WAS: pixel->color = numberPtr2
 				pixel->x = x;
 				pixel->y = y;
 	
-				if(pixel->color != 0){
+				if(pixel->color == -9340){
 					drawPixel(pixel);
 				}
 			}
@@ -592,33 +615,34 @@ int drawMoves(){
 	} else if(num <= 0){ // means only one digit
 
 		// zero
-		short int *numberPtr;
-		numberPtr=(short int *) numbersImg.pixel_data;
-		for (int y = 666; y < 720; y++){					
+					//short int *numberPtr;
+					//numberPtr=(short int *) numbersImg.pixel_data;
+		for (int y = 666; y < 729; y++){					
 			for (int x = 768; x < 799; x++){	
 				
 				pixel->color = numberPtr[(x-768)+(y-665)*320];
 				pixel->x = x;
 				pixel->y = y;
 	
-				if(pixel->color != 0){
+				if(pixel->color == -9340){
 					drawPixel(pixel);
 				}
 			}
 		}
 
 		// second digit
-		short int *numberPtr2;
-		numberPtr2=(short int *) numbersImg.pixel_data;
-		for (int y = 666; y < 720; y++)
+					//short int *numberPtr2;
+					//numberPtr2=(short int *) numbersImg.pixel_data;
+		for (int y = 666; y < 729; y++)
 		{					
 			for (int x = 800; x < 831; x++) 
 			{	
-				pixel->color = numberPtr2[(x-800)+(y-665)*320+(32*mod)];
+				pixel->color = numberPtr[(x-800)+(y-665)*320+(32*mod)];
+				// ^ WAS: pixel->color = numberPtr2
 				pixel->x = x;
 				pixel->y = y;
 	
-				if(pixel->color != 0){
+				if(pixel->color == -9340){
 					drawPixel(pixel);
 				}
 			}
@@ -633,6 +657,122 @@ int drawMoves(){
 	return 0;
 }
 
+/* Draw the Current Score */
+int drawScore(){
+
+	int modH = score / 100;	// hundreds digit
+	int modT = score / 10;	// tens digit
+	int modO = score % 10;	// ones digit
+	
+	/* initialize + get FBS */
+	framebufferstruct = initFbInfo();
+
+	/* initialize a pixel */
+	Pixel *pixel;
+	pixel = malloc(sizeof(Pixel));
+
+	
+	// TEST: use just the one point cuz why tf not if same file :(
+	short int *numberPtr;
+	numberPtr=(short int *) numbersImg.pixel_data;
+
+	// hundreds digit
+				//short int *numberPtr;
+				//numberPtr=(short int *) numbersImg.pixel_data;
+	for (int y = 666; y < 729; y++){					
+		for (int x = 384; x < 415; x++) {
+				// ^ -384 from "Moves"; was 768, 799
+			pixel->color = numberPtr[(x-384)+(y-665)*320+(32*modH)];
+			
+			pixel->x = x;
+			pixel->y = y;
+
+			if(pixel->color == -9340){
+				//printf("Our colour is: %d!", pixel->color);	// TEST
+				drawPixel(pixel);
+			}
+		}
+	}
+
+	// second digit
+				//short int *numberPtr2;
+				//numberPtr2=(short int *) numbersImg.pixel_data;
+	for (int y = 666; y < 729; y++){					
+		for (int x = 416; x < 447; x++) {
+				// ^ -384 from "Moves"; was 800, 831	
+			pixel->color = numberPtr[(x-416)+(y-665)*320+(32*modT)];
+			// ^ WAS: pixel->color = numberPtr2[(x-416)+(y-665)*320+(32*modT)];
+			pixel->x = x;
+			pixel->y = y + modH;	// sometimes the thing goes up...?; adding "+ modH" as a band-aid
+
+			if(pixel->color == -9340){
+				drawPixel(pixel);
+			}
+		}
+	}
+	
+	// third digit
+				//short int *numberPtr3;
+				//numberPtr3=(short int *) numbersImg.pixel_data;
+	for (int y = 666; y < 729; y++){					
+		for (int x = 448; x < 479; x++) {
+				// ^ -384 from "Moves"; +32 from 2nd digit's 416/447	
+			pixel->color = numberPtr[(x-448)+(y-665)*320+(32*modO)];
+			// ^ WAS: pixel->color = numberPtr3[(x-416)+(y-665)*320+(32*modT)];
+			pixel->x = x;
+			pixel->y = y;
+
+			if(pixel->color == -9340){
+				drawPixel(pixel);
+			}
+		}
+	}
+
+
+	/* free pixel's allocated memory */
+	free(pixel);
+	pixel = NULL;
+	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+	
+	return 0;
+}
+
+/* Draw the timer */
+int drawTimer(){
+	
+	/* initialize + get FBS */
+	framebufferstruct = initFbInfo();
+
+	/* initialize a pixel */
+	Pixel *pixel;
+	pixel = malloc(sizeof(Pixel));
+	
+	short int *timerPtr;
+	timerPtr=(short int *) timerBar.pixel_data;
+	for (int y = 602; y < 665; y++){	
+			// ^ is one grid space above "Moves"; that at 666,729
+		//for (int x = 768; x < 1087; x++) {
+		for (int x = 768; x < 1087 - (40 - (int)(timeLeft))*8; x++) {
+				// ^ same start as from "Moves"; 768, but 5*64=320 wide
+			pixel->color = timerPtr[(x-768)+(y-602)*320 + (40 - (int)(timeLeft))*8];
+			pixel->x = x + (40 - (int)(timeLeft))*8;	// offset for timeBar is shrinking
+			pixel->y = y;
+
+			if(pixel->color != 0){
+				//printf("Our colour is: %d!", pixel->color);	// TEST
+				drawPixel(pixel);
+			}
+		}
+	}
+
+
+	/* free pixel's allocated memory */
+	free(pixel);
+	pixel = NULL;
+	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+	
+	return 0;
+}
 
 
 /* Draw a pixel */
@@ -640,53 +780,6 @@ void drawPixel(Pixel *pixel){
 	long int location =(pixel->x +framebufferstruct.xOff) * (framebufferstruct.bits/8) +
                        (pixel->y+framebufferstruct.yOff) * framebufferstruct.lineLength;
 	*((unsigned short int*)(framebufferstruct.fptr + location)) = pixel->color;
-}
-
-
-int drawBaddie(int lane, int level, int offset){
-	/* initialize + get FBS */
-	framebufferstruct = initFbInfo();
-	
-	short int *baddiePtr;
-	
-	if (level == 1) {
-		baddiePtr=(short int *) lvlOne_Obs.pixel_data;
-	}
-	else if (level == 2) {
-		baddiePtr=(short int *) lvlTwo_Obs.pixel_data;
-	}
-	else if (level == 3) {
-		baddiePtr=(short int *) lvlThree_Obs.pixel_data;
-	}
-	else if (level == 4) {	// brain is mush, but leaving as not "else" in case something funky happens with the level value
-		baddiePtr=(short int *) lvlFour_Obs.pixel_data;
-	}
-	
-	/* initialize a pixel */
-	Pixel *pixel;
-	pixel = malloc(sizeof(Pixel));
-	int i=0;
-
-	for (int y = 474; y < 537; y++)//30 is the image height; was 538,602
-	{					// ^ was 538, but changed to avoid error
-		for (int x = 1112; x < 1178; x++) // 30 is image width; was 1200,1264
-		{	
-				pixel->color = baddiePtr[(x-1112)+(y-473)*384];
-				pixel->x = x;
-				pixel->y = y;
-	
-				if (pixel->color != 0){
-					drawPixel(pixel);
-				}
-				i++;
-		}
-	}
-	/* free pixel's allocated memory */
-	free(pixel);
-	pixel = NULL;
-	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
-	
-	return 0;
 }
 
 int drawLanes(){	// offset from 0-63?62?
