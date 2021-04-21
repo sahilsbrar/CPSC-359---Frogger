@@ -19,7 +19,6 @@ TO COMPILE & RUN IN LINUX TERMINAL, USE:
  * with that an empty folder named "build" within the project folder
 
 */
-// oh hey there
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,7 +31,6 @@ TO COMPILE & RUN IN LINUX TERMINAL, USE:
 #include <stdbool.h>
 #include "initGPIO.h"
 #include "drawImage.h"
-
 
 
 /*  Declarations  */
@@ -165,7 +163,7 @@ void print_Message(int message, int buttons[]){
                         
                         if(startBool == true){
                             drawGameScreen(0);
-                            drawFrog();
+                            drawFrog(1);
                             drawFrames();
                         }
                     }
