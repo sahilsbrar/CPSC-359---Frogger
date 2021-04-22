@@ -24,6 +24,7 @@ void drawPixel(Pixel *pixel);
 bool getStart();
 bool getQuit();
 void resetGame();
+int updateBoard();
 int getOption();
 int clear();
 int drawPause();

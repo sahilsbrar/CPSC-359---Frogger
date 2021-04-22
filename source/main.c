@@ -169,6 +169,7 @@ void print_Message(int message, int buttons[]){
                 if(startBool == false){ // on main menu
                     if(i == 5 || i == 6){
                         drawMainMenu(i); // cycling between main menu option
+                        updateBoard();
                         
                     }else if(i == 9){ // user made a selection
                         startBool = getStart(); //start game
@@ -182,31 +183,37 @@ void print_Message(int message, int buttons[]){
                             drawLanes();
                             drawFrog(1);
                             drawFrames();
+                            updateBoard();
                         }
                     }
                 }else if(paused == true){ // if paused
                     if(i == 5 || i == 6){
                         drawPause(i); // cycle between options (UP or DOWN pressed)
+                        updateBoard();
 
                     } else if(i == 9){ // if user selects option
                         int option = getOption(); // get option
 
                         if(option == 1){ // user quit to main menu
-                            drawMainMenu(1);
-                            startBool = false;
                             paused = false;
+                            drawMainMenu(1);
+                            updateBoard();
+                            startBool = false;
+                            //paused = false;
 
                         }else if(option == 2){ // user reset game
                             resetGame();
                             //startTime = time(NULL); // this should maybe be put in with resetGame(); see above
                             //timeLeft = 40; // reset clock for a new round (int)
                             timeLeft = 39.99; // reset clock for a new round (dbl)
-                            drawGameScreen(0);
-                            drawLanes();
-                            updateLaneOffsets();
-                            drawFrog(1);
-                            drawFrames();
+                            //drawGameScreen(0);
+                            //drawLanes();
+                            //updateLaneOffsets();
+                            //drawFrog(1);
+                            //drawFrames();
                             paused = false;
+                            updateBoard();
+                            //paused = false;
                         }
                     }
                 }else if(i >= 5 && i <= 8){
@@ -295,16 +302,21 @@ void read_SNES(unsigned int *gpio){
             }
             
             if(buttons[4] == 0){                                        // START button has been pressed
+                
+                wait(500);
+                
                 if(startBool == true){ // make sure not on main menu
 
                     if(paused == false){ // if not paused, pause
                         paused = true;    
                         drawPause(5);
+                        updateBoard();
 
                     }else{ // already paused and hit START, resumes game
                         drawGameScreen(0);
                         drawFrog(1);
                         drawFrames();
+                        updateBoard();
                         paused = false;
                     }
                 }
@@ -370,6 +382,8 @@ void *clockie(void *id){
         drawFrames();
         drawTimer();
         
+        updateBoard();
+        
         
         // BELOW FEW LINES ARE LARGELY FOR TESTING
         //if(timeLeft % 5 == 0){
@@ -393,6 +407,9 @@ void *clockie(void *id){
 int main(){
     resetGame();
     drawMainMenu(5);
+    
+    updateBoard();
+    
     unsigned int *gpio = getGPIOPtr();                                  // Obtains the base GPIO address
     
     /* IMMEDIATELY BELOW IS FOR POTENTIAL LATER FUNCTIONALITY
