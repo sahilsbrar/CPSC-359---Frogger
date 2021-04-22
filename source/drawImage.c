@@ -72,9 +72,10 @@ int laneIndices[5] = {0,30,60,90,120};
 double laneSpeeds[5] = {8.0,-12.0,10.0,-9.0,8.0};
 double speedModifier = 2.0;
 
-int laneOccupancy[155] = {0,1,1,1,0,0,0,0,1,1,0,0,0,1,0,1,0,0,0,1,1,0,0,0,0,1,1,0,1,0,0,0,1,1,1,1,0,0,0,1,1,0,0,0,1,1,0,0,1,1,1,1,0,0,0,0,1,1,0,1,1,0,0,0,1,1,0,0,0,0,1,0,1,0,0,1,0,0,0,0,1,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,1,1,1,0,1,1,0,0,1,1,0,0,0,0,0,0,1,0,1,1,0,1,1,1,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0};
+int laneOccupancy[155] = {0,1,1,1,0,0,0,0,1,1,0,0,0,1,0,1,0,0,0,1,1,0,0,0,0,1,1,0,1,0,0,0,1,1,1,1,0,0,0,1,1,0,0,0,1,1,0,0,1,1,1,1,0,0,0,0,1,1,0,1,1,0,0,0,1,1,0,0,0,0,1,0,1,0,0,1,0,0,0,1,1,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0,1,1,0,1,1,0,0,1,1,0,0,0,0,0,0,1,0,1,1,0,1,1,1,0,0,0,0,0,0,1,1,0,0,0,1,1,0,0,0,0};
 
 // Variables -> possible struct here?
+int lives = 3;
 int level = 1;
 int score = 0;
 int movesLeft = 75;
@@ -125,6 +126,7 @@ int updateBoard(){
 }
 
 void resetGame(){
+	lives = 3;
 	level = 1;
 	movesLeft = 75;
 	movesTaken = 0;
@@ -1046,7 +1048,9 @@ void drawPixel(Pixel *pixel){
 	*((unsigned short int*)(framebufferstruct.fptr + location)) = pixel->color;
 }
 
-int drawLanes(){	// offset from 0-63?62?
+
+/* Draws each obstacle lane */
+int drawLanes(){
 	/* initialize + get FBS */
 	framebufferstruct = initFbInfo();
 	
@@ -1065,7 +1069,11 @@ int drawLanes(){	// offset from 0-63?62?
 				
 				int offset = laneOffsets[(n-1)] + q*64;	// 64 is per grid space
 				int lane = n;
-				
+
+				if ((lane == 2) && (laneOccupancy[(laneIndices[n-1] + q + 1) % 155] == 0)){
+					continue;	// don't print for this q value, as there is nothing beyond it
+				}
+
 				if (lane == 2){
 					q++;	// avoid printing overlapping, double-long obstacles
 				}
@@ -1131,6 +1139,7 @@ int drawLanes(){	// offset from 0-63?62?
 	return 0;
 }
 
+/* Updates the offsets of each of the obstacle lanes */
 int updateLaneOffsets(){
 	
 	//printf("Lane 1 Offset is: %i", laneOffsets[0]);	// TEST
@@ -1166,3 +1175,9 @@ int updateLaneOffsets(){
 	}
 	return 0;
 }
+
+/* Checks for Collision */
+
+
+
+
