@@ -53,8 +53,8 @@
 
 
 //int playSound( char *filename ) {
-	//char command[256];
 	//int status;
+	//char command[256];
 	
 	/* create command to execute */
 	//sprintf( command, "aplay -c 1 -q -t wav %s", filename );
@@ -67,14 +67,15 @@
 
 struct fbs framebufferstruct;
 
-int laneOffsets[5] = {25,35,15,0,10};				// pixels offset
+int laneOffsets[5] = {25,35,15,20,10};				// pixels offset
 int laneIndices[5] = {0,30,60,90,120};
 double laneSpeeds[5] = {8.0,-12.0,10.0,-9.0,8.0};
-double speedModifier = 3.0;
+double speedModifier = 1.5;
 
-int laneOccupancy[155] = {0,1,1,1,0,0,0,0,1,1,0,0,0,1,0,1,0,0,0,1,1,0,0,0,0,1,1,0,1,0,0,0,1,1,1,1,0,0,0,1,1,0,0,0,1,1,0,0,1,1,1,1,0,0,0,0,1,1,0,1,1,0,0,0,1,1,0,0,0,0,1,0,1,0,0,1,0,0,0,0,1,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,1,1,1,0,1,1,0,0,1,1,0,0,0,0,0,0,1,0,1,1,0,1,1,1,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0};
+int laneOccupancy[155] = {0,1,1,1,0,0,0,0,1,1,0,0,0,1,0,1,0,0,0,1,1,0,0,0,0,1,1,0,1,0,0,0,1,1,1,1,0,0,0,1,1,0,0,0,1,1,0,0,1,1,1,1,0,0,0,0,1,1,0,1,1,0,0,0,1,1,0,0,0,0,1,0,1,0,0,1,0,0,0,1,1,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0,1,1,0,1,1,0,0,1,1,0,0,0,0,0,0,1,0,1,1,0,1,1,1,0,0,0,0,0,0,1,1,0,0,0,1,1,0,0,0,0};
 
 // Variables -> possible struct here?
+int lives = 4;	// player starts with 3 bonus lives! (as displayed on the game screen)
 int level = 1;
 int score = 0;
 int movesLeft = 75;
@@ -85,6 +86,10 @@ bool startGame = false;
 bool quitGame = false;
 bool goMain = false;
 bool reset = false;
+bool winner = false;
+bool loser = false;
+bool collided = false;
+// int score = 157;
 bool browniePts = false;
 double timeLeft = 39.9;	// start with 40 seconds
 //int timeLeft = 40;	// start with 40 seconds
@@ -121,21 +126,38 @@ int updateBoard(){
 	return 0;
 }
 
+void frogDied(){
+	// reset level???
+	// DRAW AN 'X' OVER LIFE TAKEN!!!
+	//--lives;
+	lastPressedX = 640;	// was 1200 (offset by +39)
+	lastPressedY = 537;		// was 538 (offset by -1)
+}
+
+
 void resetGame(){
+	lives = 3;
 	level = 1;
 	movesLeft = 75;
 	movesTaken = 0;
+	score = 0;
 	lastPressedX = 640;	// was 1200 (offset by +39)
 	lastPressedY = 537;		// was 538 (offset by -1)
 	startGame = false;
 	quitGame = false;
 	goMain = false;
 	reset = false;
+	winner = false;
+	loser = false;
 	// maybe can reset time here, but believe presently needless
 }
 
 int getOption(){
-	if(goMain == true){
+	if(winner == true){
+		return 3;
+	}else if(loser == true){
+		return 4;
+	}else if(goMain == true){
 		return 1;
 	}else if(reset == true){
 		return 2;
@@ -178,6 +200,8 @@ int clear(){
 	free(pixel);
 	pixel = NULL;
 	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+
+	//updateBoard();
 	
 	return 0;
 }
@@ -332,6 +356,63 @@ int drawFrames(){
 	return 0;
 }
 
+// Draws Win/Lose Screens
+int drawOutCome(){
+
+	/* initialize + get FBS */
+	//framebufferstruct = initFbInfo();
+
+	/* initialize a pixel */
+	//Pixel *pixel;
+	//pixel = malloc(sizeof(Pixel));
+	int i=0;
+
+	short int *outcomePtr;
+
+	if(winner == true){ // win screen
+		outcomePtr=(short int *) winScreen.pixel_data; // dispay win message
+
+		for (int y = 200; y < 520; y++){ // 320 is the image height
+			for (int x = 320; x < 960; x++){ // 640 is image width
+				colors[x][y] = outcomePtr[i];
+				//pixel->color = outcomePtr[i]; 
+				//pixel->x = x;
+				//pixel->y = y;
+
+				//drawPixel(pixel);
+				i++;
+			}
+		}
+	} else{ // lose screen
+		outcomePtr=(short int *) loseScreen.pixel_data; // dispay lose message
+
+		for (int y = 200; y < 520; y++){ // 320 is the image height
+			for (int x = 320; x < 960; x++){ // 640 is image width
+				colors[x][y] = outcomePtr[i];
+				//pixel->color = outcomePtr[i]; 
+				//pixel->x = x;
+				//pixel->y = y;
+
+				//drawPixel(pixel);
+				i++;
+				//pixel->color = outcomePtr[i]; 
+				//pixel->x = x;
+				//pixel->y = y;
+
+				//drawPixel(pixel);
+				//i++;
+			}
+		}
+	}
+
+	/* free pixel's allocated memory */
+	//free(pixel);
+	//pixel = NULL;
+	//munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+	drawScore(2);
+	return 0;
+}
+
 // Draws pause
 int drawPause(int buttonPressed){
 
@@ -408,7 +489,7 @@ int drawFrog(int direction){
 
 			if (frogPtr[i+64] != 0){ // dont print black pixels (for around frog)
 				//drawPixel(pixel);
-				colors[x][y] = frogPtr[i+64];
+				colors[x][y] = frogPtr[i+64];	// + 420 / (int)(timeLeft + 1);	<--- +1 avoids floating point issues
 				;
 			}
 			i++;
@@ -419,6 +500,7 @@ int drawFrog(int direction){
 	free(pixel);
 	pixel = NULL;
 	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+	drawScore(1);
 	drawMoves();
 	return 0;
 }
@@ -438,13 +520,30 @@ int moveFrog(int buttonPressed){
 		if(lastPressedY <= 155 && level == 4){	// Restricting level 4 top movements through gate only (feature)
 			if(lastPressedX == 576 || lastPressedX == 640){
 				lastPressedY = lastPressedY - 64;
-				movesTaken++;	// increment moves taken
-				
+				movesTaken++;
+				int move = movesLeft - movesTaken;
+
 				if(browniePts == false){	// MAKES SURE THAT WINNING PTS GAIN ONLY HAPPENS ONCE!!
 					score += 100;	// good for you
 					browniePts = true;	// such wow
 				}
-				//win here
+
+				if(move >= 0){ //winner if moves are left
+					winner = true;
+					drawScore(1);
+					drawMoves(); // update moves left on bottom on screen
+					drawOutCome();
+					return 0;
+
+				}else{ // no moves to move up, loserrrrr
+					loser = true;
+					drawScore(1);
+					drawMoves(); // update moves left on bottom on screen
+					drawOutCome();
+					return 0;
+				}
+				movesTaken++;	// increment moves taken
+				
 			}else{
 				lastPressedY = lastPressedY; // cannot move due to bounds
 			}
@@ -599,8 +698,99 @@ int moveFrog(int buttonPressed){
 	free(pixel);
 	pixel = NULL;
 	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
-	drawMoves();	// update moves left on bottom on screen
-	drawScore();	// update score total at screen's bottom
+	drawScore(1);
+	drawMoves(); // update moves left on bottom on screen
+	return 0;
+}
+
+// function to display score on screen
+int drawScore(int location){
+
+	int modH = score / 100;	// hundreds digit
+	int modT = score / 10;	// tens digit
+	int modO = score % 10;	// ones digit
+
+	/* initialize + get FBS */
+	framebufferstruct = initFbInfo();
+
+	/* initialize a pixel */
+	Pixel *pixel;
+	pixel = malloc(sizeof(Pixel));
+
+	// TEST: use just the one point cuz why tf not if same file :(
+	short int *numberPtr;
+	numberPtr=(short int *) numbersImg.pixel_data;
+
+	if(location == 1){
+		// first digit
+		for (int y = 666; y < 720; y++){					
+			for (int x = 384; x < 415; x++) {
+
+				if(numberPtr[(x-384)+(y-665)*320+(32*modH)] == -9340){
+					colors[x][y] = numberPtr[(x-384)+(y-665)*320+(32*modH)];
+				}
+			}
+		}
+
+		// second digit
+		for (int y = 666; y < 720; y++){					
+			for (int x = 416; x < 447; x++){	
+
+				if(numberPtr[(x-416)+(y-665)*320+(32*modT)] == -9340){
+					colors[x][y+modH] = numberPtr[(x-416)+(y-665)*320+(32*modT)];
+				}
+			}
+		}
+
+		// third digit
+		for (int y = 666; y < 720; y++){					
+			for (int x = 448; x < 479; x++){	
+
+				if(numberPtr[(x-448)+(y-665)*320+(32*modO)] == -9340){
+					colors[x][y] = numberPtr[(x-448)+(y-665)*320+(32*modO)];
+				}
+			}
+		}
+
+	}else{
+		
+		// first digit
+		for (int y = 394; y < 449; y++){					
+			for (int x = 640; x < 671; x++) {
+
+				if(numberPtr[(x-640)+(y-393)*320+(32*modH)] == -9340){
+					colors[x][y] = numberPtr[(x-640)+(y-393)*320+(32*modH)];
+				}
+			}
+		}
+
+		// second digit
+		for (int y = 394; y < 449; y++){					
+			for (int x = 672; x < 703; x++){
+
+				if(numberPtr[(x-672)+(y-393)*320+(32*modT)] == -9340){
+					colors[x][y+modH] = numberPtr[(x-672)+(y-393)*320+(32*modT)];
+				}
+			}
+		}
+
+		// third digit
+		for (int y = 394; y < 449; y++){					
+			for (int x = 704; x < 735; x++){
+
+				if(numberPtr[(x-704)+(y-393)*320+(32*modO)] == -9340){
+					colors[x][y] = numberPtr[(x-704)+(y-393)*320+(32*modO)];
+				}
+			}
+		}
+		
+	}
+
+	/* free pixel's allocated memory */
+	free(pixel);
+	pixel = NULL;
+	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+	
 	return 0;
 }
 
@@ -643,7 +833,7 @@ int drawMoves(){
 				if(numberPtr[(x-768)+(y-665)*320+(32*num)] == -9340){
 					//drawPixel(pixel);
 					colors[x][y] = numberPtr[(x-768)+(y-665)*320+(32*num)];
-					;
+
 				}
 			}
 		}
@@ -711,7 +901,7 @@ int drawMoves(){
 				if(numberPtr[(x-800)+(y-665)*320+(32*mod)] == -9340){
 					//drawPixel(pixel);
 					colors[x][y] = numberPtr[(x-800)+(y-665)*320+(32*mod)];
-					;
+					
 				}
 			}
 		}
@@ -725,100 +915,100 @@ int drawMoves(){
 	return 0;
 }
 
-/* Draw the Current Score */
-int drawScore(){
+// /* Draw the Current Score */
+// int drawScore(){
 
-	int modH = score / 100;	// hundreds digit
-	int modT = score / 10;	// tens digit
-	int modO = score % 10;	// ones digit
+// 	int modH = score / 100;	// hundreds digit
+// 	int modT = score / 10;	// tens digit
+// 	int modO = score % 10;	// ones digit
 	
-	/* initialize + get FBS */
-	framebufferstruct = initFbInfo();
+// 	/* initialize + get FBS */
+// 	framebufferstruct = initFbInfo();
 
-	/* initialize a pixel */
-	Pixel *pixel;
-	pixel = malloc(sizeof(Pixel));
+// 	/* initialize a pixel */
+// 	Pixel *pixel;
+// 	pixel = malloc(sizeof(Pixel));
 
 	
-	// TEST: use just the one point cuz why tf not if same file :(
-	short int *numberPtr;
-	numberPtr=(short int *) numbersImg.pixel_data;
+// 	// TEST: use just the one point cuz why tf not if same file :(
+// 	short int *numberPtr;
+// 	numberPtr=(short int *) numbersImg.pixel_data;
 
-	// hundreds digit
-				//short int *numberPtr;
-				//numberPtr=(short int *) numbersImg.pixel_data;
-	for (int y = 666; y < 729; y++){					
-		for (int x = 384; x < 415; x++) {
-				// ^ -384 from "Moves"; was 768, 799
-			//colors[x][y] = numberPtr[(x-384)+(y-665)*320+(32*modH)];
+// 	// hundreds digit
+// 				//short int *numberPtr;
+// 				//numberPtr=(short int *) numbersImg.pixel_data;
+// 	for (int y = 666; y < 729; y++){					
+// 		for (int x = 384; x < 415; x++) {
+// 				// ^ -384 from "Moves"; was 768, 799
+// 			//colors[x][y] = numberPtr[(x-384)+(y-665)*320+(32*modH)];
 			
-			//pixel->color = numberPtr[(x-384)+(y-665)*320+(32*modH)];
+// 			//pixel->color = numberPtr[(x-384)+(y-665)*320+(32*modH)];
 			
-			//pixel->x = x;
-			//pixel->y = y;
+// 			//pixel->x = x;
+// 			//pixel->y = y;
 
-			//if(pixel->color == -9340){
-			if(numberPtr[(x-384)+(y-665)*320+(32*modH)] == -9340){
-				//printf("Our colour is: %d!", pixel->color);	// TEST
-				//drawPixel(pixel);
-				colors[x][y] = numberPtr[(x-384)+(y-665)*320+(32*modH)];
-			}
-		}
-	}
+// 			//if(pixel->color == -9340){
+// 			if(numberPtr[(x-384)+(y-665)*320+(32*modH)] == -9340){
+// 				//printf("Our colour is: %d!", pixel->color);	// TEST
+// 				//drawPixel(pixel);
+// 				colors[x][y] = numberPtr[(x-384)+(y-665)*320+(32*modH)];
+// 			}
+// 		}
+// 	}
 
-	// second digit
-				//short int *numberPtr2;
-				//numberPtr2=(short int *) numbersImg.pixel_data;
-	for (int y = 666; y < 729; y++){					
-		for (int x = 416; x < 447; x++) {
-				// ^ -384 from "Moves"; was 800, 831	
-			//colors[x][y + modH] = numberPtr[(x-416)+(y-665)*320+(32*modT)];
+// 	// second digit
+// 				//short int *numberPtr2;
+// 				//numberPtr2=(short int *) numbersImg.pixel_data;
+// 	for (int y = 666; y < 729; y++){					
+// 		for (int x = 416; x < 447; x++) {
+// 				// ^ -384 from "Moves"; was 800, 831	
+// 			//colors[x][y + modH] = numberPtr[(x-416)+(y-665)*320+(32*modT)];
 			
-			//pixel->color = numberPtr[(x-416)+(y-665)*320+(32*modT)];
-			// ^ WAS: pixel->color = numberPtr2[(x-416)+(y-665)*320+(32*modT)];
-			//pixel->x = x;
-			//pixel->y = y + modH;	// sometimes the thing goes up...?; adding "+ modH" as a band-aid
+// 			//pixel->color = numberPtr[(x-416)+(y-665)*320+(32*modT)];
+// 			// ^ WAS: pixel->color = numberPtr2[(x-416)+(y-665)*320+(32*modT)];
+// 			//pixel->x = x;
+// 			//pixel->y = y + modH;	// sometimes the thing goes up...?; adding "+ modH" as a band-aid
 
-			//if(pixel->color == -9340){
-			if(numberPtr[(x-416)+(y-665)*320+(32*modT)] == -9340){
-				//printf("Our colour is: %d!", pixel->color);	// TEST
-				//drawPixel(pixel);
-				colors[x][y + modH] = numberPtr[(x-416)+(y-665)*320+(32*modT)];
-				//colors[x][y] = numberPtr[(x-416)+(y-665)*320+(32*modT)];
-			}
-		}
-	}
+// 			//if(pixel->color == -9340){
+// 			if(numberPtr[(x-416)+(y-665)*320+(32*modT)] == -9340){
+// 				//printf("Our colour is: %d!", pixel->color);	// TEST
+// 				//drawPixel(pixel);
+// 				colors[x][y + modH] = numberPtr[(x-416)+(y-665)*320+(32*modT)];
+// 				//colors[x][y] = numberPtr[(x-416)+(y-665)*320+(32*modT)];
+// 			}
+// 		}
+// 	}
 	
-	// third digit
-				//short int *numberPtr3;
-				//numberPtr3=(short int *) numbersImg.pixel_data;
-	for (int y = 666; y < 729; y++){					
-		for (int x = 448; x < 479; x++) {
-				// ^ -384 from "Moves"; +32 from 2nd digit's 416/447	
-			//colors[x][y] = numberPtr[(x-448)+(y-665)*320+(32*modO)];
+// 	// third digit
+// 				//short int *numberPtr3;
+// 				//numberPtr3=(short int *) numbersImg.pixel_data;
+// 	for (int y = 666; y < 729; y++){					
+// 		for (int x = 448; x < 479; x++) {
+// 				// ^ -384 from "Moves"; +32 from 2nd digit's 416/447	
+// 			//colors[x][y] = numberPtr[(x-448)+(y-665)*320+(32*modO)];
 			
-			//pixel->color = numberPtr[(x-448)+(y-665)*320+(32*modO)];
-			// ^ WAS: pixel->color = numberPtr3[(x-416)+(y-665)*320+(32*modT)];
-			//pixel->x = x;
-			//pixel->y = y;
+// 			//pixel->color = numberPtr[(x-448)+(y-665)*320+(32*modO)];
+// 			// ^ WAS: pixel->color = numberPtr3[(x-416)+(y-665)*320+(32*modT)];
+// 			//pixel->x = x;
+// 			//pixel->y = y;
 
-			//if(pixel->color == -9340){
-			if(numberPtr[(x-448)+(y-665)*320+(32*modO)] == -9340){
-				//printf("Our colour is: %d!", pixel->color);	// TEST
-				//drawPixel(pixel);
-				colors[x][y] = numberPtr[(x-448)+(y-665)*320+(32*modO)];
-			}
-		}
-	}
+// 			//if(pixel->color == -9340){
+// 			if(numberPtr[(x-448)+(y-665)*320+(32*modO)] == -9340){
+// 				//printf("Our colour is: %d!", pixel->color);	// TEST
+// 				//drawPixel(pixel);
+// 				colors[x][y] = numberPtr[(x-448)+(y-665)*320+(32*modO)];
+// 			}
+// 		}
+// 	}
 
 
-	/* free pixel's allocated memory */
-	free(pixel);
-	pixel = NULL;
-	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+// 	/* free pixel's allocated memory */
+// 	free(pixel);
+// 	pixel = NULL;
+// 	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
 	
-	return 0;
-}
+// 	return 0;
+// }
 
 /* Draw the timer */
 int drawTimer(){
@@ -843,10 +1033,10 @@ int drawTimer(){
 			//pixel->x = x + (40 - (int)(timeLeft))*8;	// offset for timeBar is shrinking
 			//pixel->y = y;
 
-			if(timerPtr[(x-768)+(y-602)*320 + (40 - (int)(timeLeft))*8] != 0){
+			if(timerPtr[(x-768)+(y-601)*320 + (40 - (int)(timeLeft))*8] != 0){
 				//printf("Our colour is: %d!", pixel->color);	// TEST
 				//drawPixel(pixel);
-				colors[x + (40 - (int)(timeLeft))*8][y] = timerPtr[(x-768)+(y-602)*320 + (40 - (int)(timeLeft))*8];
+				colors[x + (40 - (int)(timeLeft))*8][y] = timerPtr[(x-768)+(y-601)*320 + (40 - (int)(timeLeft))*8];
 			}
 		}
 	}
@@ -868,7 +1058,18 @@ void drawPixel(Pixel *pixel){
 	*((unsigned short int*)(framebufferstruct.fptr + location)) = pixel->color;
 }
 
-int drawLanes(){	// offset from 0-63?62?
+
+/* Draws each obstacle lane */
+int drawLanes(){
+
+	collided = false;
+
+	if(level == 2){
+		if((0 < ((537 - lastPressedY) / 64)) && (((537 - lastPressedY) / 64) < 6)){
+			collided = true;	// backwards, such that not colliding with an obstacle is bad!
+		}
+	}
+
 	/* initialize + get FBS */
 	framebufferstruct = initFbInfo();
 	
@@ -887,7 +1088,35 @@ int drawLanes(){	// offset from 0-63?62?
 				
 				int offset = laneOffsets[(n-1)] + q*64;	// 64 is per grid space
 				int lane = n;
+
+
+				if ((lane == 2) && (laneOccupancy[(laneIndices[n-1] + q + 1) % 155] == 0)){
+					continue;	// don't print for this q value, as there is nothing beyond it
+				}
+
+
+				// BELOW ARE FOR FROGGY COORDINATE REFERENCE!
+				//int frogLane = (537 - lastPressedY) / 64;		// array index for lanes is -1 of this!
+				//int frogColumn = (lastPressedX - 128) / 64; 	// index for pseudo-columns is -1???
+
+				// NEED BELOW VALUE BECAUSE OF NEG vs POS LANE OFFSETS!	<--- was 1 previously
+				int laneCollisionOffset = lane % 2;		// +1 for 1,3,5 & + 2 for 2,4
+
+				// COLLISION DETECTION!
+				if((level != 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + laneCollisionOffset)){
+					//score += 1;
+					collided = true;
+				}
+
+				// NEED BOTH OF THE BELOW IF-STATEMENTS!!
 				
+				if((level == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + 1)){
+					//score += 1;
+					collided = false;	// per initially, we want collision to equal no collision for lvl 2!
+				}
+
+
+
 				if (lane == 2){
 					q++;	// avoid printing overlapping, double-long obstacles
 				}
@@ -953,6 +1182,7 @@ int drawLanes(){	// offset from 0-63?62?
 	return 0;
 }
 
+/* Updates the offsets of each of the obstacle lanes */
 int updateLaneOffsets(){
 	
 	//printf("Lane 1 Offset is: %i", laneOffsets[0]);	// TEST
@@ -988,3 +1218,52 @@ int updateLaneOffsets(){
 	}
 	return 0;
 }
+
+//////////////////////////
+/* Checks for Collision */
+//////////////////////////
+/* NOTE: for checking on
+ * collisions in lane 2,
+ * we must get creative
+ * due to the unorthodox
+ * process by which our
+ * obstacles are chosen;
+ * this factor directly
+ * drives the weird line
+ * below checking lane 2
+*/
+//bool checkCollision(){
+	
+	//bool collided = false;
+
+	// BOTH BELOW ARE PERFECT
+	//int frogLane = (537 - lastPressedY) / 64;	// index for lanes is -1 of this!
+	//int frogColumn = (lastPressedX - 128) / 64; // index for pseudo-columns is -1???
+
+	// TESTING CONDITIONAL FOR GRID SPACE
+	//if((frogLane == 2) && (frogColumn == 5)){
+	//	score += 1;
+	//}
+
+	// LANE TEST
+	//score += frogLane;	// <--- THIS IS BUENO AF
+
+	// COLUMN TEST
+	//score += frogColumn;	// <--- THIS IS BUENO AF
+
+	// TESTING THE REAL DEAL McNEAL
+	//if(laneOccupancy[(laneIndices[frogLane-1] + frogColumn - 1) % 154] == 1){
+	//if(laneOccupancy[(laneIndices[1] + 5 - 1) % 155] == 1){
+	//	score += 1;
+	//	collided = true;
+	//}
+
+	//if(level == 2){	// not colliding means that we're in water!!!
+	//	collided = !collided;
+	//}
+
+	//return collided;
+//}
+
+
+
