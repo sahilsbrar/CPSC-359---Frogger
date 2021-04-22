@@ -70,7 +70,7 @@ struct fbs framebufferstruct;
 int laneOffsets[5] = {25,35,15,0,10};				// pixels offset
 int laneIndices[5] = {0,30,60,90,120};
 double laneSpeeds[5] = {8.0,-12.0,10.0,-9.0,8.0};
-double speedModifier = 3.0;
+double speedModifier = 2.0;
 
 int laneOccupancy[155] = {0,1,1,1,0,0,0,0,1,1,0,0,0,1,0,1,0,0,0,1,1,0,0,0,0,1,1,0,1,0,0,0,1,1,1,1,0,0,0,1,1,0,0,0,1,1,0,0,1,1,1,1,0,0,0,0,1,1,0,1,1,0,0,0,1,1,0,0,0,0,1,0,1,0,0,1,0,0,0,0,1,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,1,1,1,0,1,1,0,0,1,1,0,0,0,0,0,0,1,0,1,1,0,1,1,1,0,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0};
 
@@ -725,7 +725,7 @@ int drawScore(int location){
 			for (int x = 416; x < 447; x++){	
 
 				if(numberPtr[(x-416)+(y-665)*320+(32*modT)] == -9340){
-					colors[x][y] = numberPtr[(x-416)+(y-665)*320+(32*modT)];
+					colors[x][y+modH] = numberPtr[(x-416)+(y-665)*320+(32*modT)];
 				}
 			}
 		}
@@ -757,7 +757,7 @@ int drawScore(int location){
 			for (int x = 672; x < 703; x++){
 
 				if(numberPtr[(x-672)+(y-393)*320+(32*modT)] == -9340){
-					colors[x][y] = numberPtr[(x-672)+(y-393)*320+(32*modT)];
+					colors[x][y+modH] = numberPtr[(x-672)+(y-393)*320+(32*modT)];
 				}
 			}
 		}

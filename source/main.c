@@ -352,6 +352,7 @@ void read_SNES(unsigned int *gpio){
                         // drawFrog(1);
                         // drawFrames();
                         // updateBoard();
+                        movF = 0;   // prevents movement in pause menu; North orientation upon resuming
                         paused = false;
                     }
                 }
@@ -424,7 +425,7 @@ void *clockie(void *id){
                 //wait(5000000);
                 drawOutCome();
                 updateBoard();
-                //wait(5000000);
+                wait(5000000);
                 bool exit = false;
                 while(exit == false){
                     if(movF != 0){
