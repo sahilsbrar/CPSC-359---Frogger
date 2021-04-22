@@ -416,8 +416,14 @@ void *clockie(void *id){
             //
 
             // BELOW LINES ARE FOR KEEPING TRACK OF ~STANDARDIZED INCREMENTS IN MICROSECONDS
-            wait(100000);   // wait 100k microseconds; roughly 6fps!!! <--------
-            timeLeft -= 0.1;   // COMPARE THIS VALUE TO ABOVE MICROSECONDS
+            //wait(100000);   // wait 100k microseconds; roughly 10fps!!! <--------
+            //timeLeft -= 0.1;   // COMPARE THIS VALUE TO ABOVE MICROSECONDS
+            wait(50000);   // wait 50k microseconds; roughly 20fps!!! <--------
+            timeLeft -= 0.05;   // COMPARE THIS VALUE TO ABOVE MICROSECONDS
+            // ^ NOTE THAT YOU *MUST* TAKE speedModifier INTO CONSIDERATION
+            //   WHEN ALTERING THESE VALUES AND ADJUST ACCORDINGLY!!!
+
+            checkCollision();   // TEST FOR COORDINATE CHECKING!!!
             
 
             int value = getOption();

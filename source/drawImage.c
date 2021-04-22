@@ -1177,7 +1177,23 @@ int updateLaneOffsets(){
 }
 
 /* Checks for Collision */
+bool checkCollision(){
+	
+	bool collided = false;
+	int frogLane = (537 - lastPressedY) / 64;	// index for lanes is -1 of this!
+	int frogColumn = (768 - lastPressedX) / 64; // index for pseudo-columns is -1
 
+	// TESTING CONDITIONAL
+	//if((frogLane == 2) && (frogColumn == 5)){
+	//	score += 1;
+	//}
+
+	if(frogLane == 2){
+		collided = !collided;
+	}
+
+	return collided;
+}
 
 
 
