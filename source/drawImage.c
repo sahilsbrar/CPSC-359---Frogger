@@ -88,6 +88,7 @@ bool goMain = false;
 bool reset = false;
 bool winner = false;
 bool loser = false;
+bool collided = false;
 // int score = 157;
 bool browniePts = false;
 double timeLeft = 39.9;	// start with 40 seconds
@@ -1070,6 +1071,22 @@ int drawLanes(){
 				int offset = laneOffsets[(n-1)] + q*64;	// 64 is per grid space
 				int lane = n;
 
+				// BELOW ARE FOR FROGGY COORDINATE REFERENCE!
+				//int frogLane = (537 - lastPressedY) / 64;	// array index for lanes is -1 of this!
+				//int frogColumn = (lastPressedX - 128) / 64; // index for pseudo-columns is -1???
+
+
+				// COLLISION DETECTION!
+				if((level != 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + 1)){
+					score += 1;
+				}
+
+				if((level == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + 1)){
+					score -= 1;
+				}
+
+
+
 				if ((lane == 2) && (laneOccupancy[(laneIndices[n-1] + q + 1) % 155] == 0)){
 					continue;	// don't print for this q value, as there is nothing beyond it
 				}
@@ -1176,24 +1193,51 @@ int updateLaneOffsets(){
 	return 0;
 }
 
+//////////////////////////
 /* Checks for Collision */
-bool checkCollision(){
+//////////////////////////
+/* NOTE: for checking on
+ * collisions in lane 2,
+ * we must get creative
+ * due to the unorthodox
+ * process by which our
+ * obstacles are chosen;
+ * this factor directly
+ * drives the weird line
+ * below checking lane 2
+*/
+//bool checkCollision(){
 	
-	bool collided = false;
-	int frogLane = (537 - lastPressedY) / 64;	// index for lanes is -1 of this!
-	int frogColumn = (768 - lastPressedX) / 64; // index for pseudo-columns is -1
+	//bool collided = false;
 
-	// TESTING CONDITIONAL
+	// BOTH BELOW ARE PERFECT
+	//int frogLane = (537 - lastPressedY) / 64;	// index for lanes is -1 of this!
+	//int frogColumn = (lastPressedX - 128) / 64; // index for pseudo-columns is -1???
+
+	// TESTING CONDITIONAL FOR GRID SPACE
 	//if((frogLane == 2) && (frogColumn == 5)){
 	//	score += 1;
 	//}
 
-	if(frogLane == 2){
-		collided = !collided;
-	}
+	// LANE TEST
+	//score += frogLane;	// <--- THIS IS BUENO AF
 
-	return collided;
-}
+	// COLUMN TEST
+	//score += frogColumn;	// <--- THIS IS BUENO AF
+
+	// TESTING THE REAL DEAL McNEAL
+	//if(laneOccupancy[(laneIndices[frogLane-1] + frogColumn - 1) % 154] == 1){
+	//if(laneOccupancy[(laneIndices[1] + 5 - 1) % 155] == 1){
+	//	score += 1;
+	//	collided = true;
+	//}
+
+	//if(level == 2){	// not colliding means that we're in water!!!
+	//	collided = !collided;
+	//}
+
+	//return collided;
+//}
 
 
 

@@ -423,7 +423,7 @@ void *clockie(void *id){
             // ^ NOTE THAT YOU *MUST* TAKE speedModifier INTO CONSIDERATION
             //   WHEN ALTERING THESE VALUES AND ADJUST ACCORDINGLY!!!
 
-            checkCollision();   // TEST FOR COORDINATE CHECKING!!!
+            //checkCollision();   // TEST FOR COORDINATE CHECKING!!!
             
 
             int value = getOption();

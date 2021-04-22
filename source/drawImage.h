@@ -16,6 +16,7 @@ int score;
 int laneOffsets[5];
 double speedModifier;
 int laneOccupancy[155];
+bool collided;
 
 
 
@@ -39,5 +40,5 @@ int drawScore();
 int drawTimer();
 int drawLanes();
 int updateLaneOffsets();	// updates the offsets for the lanes; to be clock-synchronized
-bool checkCollision();		// checks if our dear froggy has collided with an obstacle!
+//bool checkCollision();		// checks if our dear froggy has collided with an obstacle!
 #endif
