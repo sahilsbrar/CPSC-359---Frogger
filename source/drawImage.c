@@ -128,6 +128,7 @@ void resetGame(){
 	level = 1;
 	movesLeft = 75;
 	movesTaken = 0;
+	score = 0;
 	lastPressedX = 640;	// was 1200 (offset by +39)
 	lastPressedY = 537;		// was 538 (offset by -1)
 	startGame = false;

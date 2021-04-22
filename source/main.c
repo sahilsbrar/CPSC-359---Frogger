@@ -155,7 +155,7 @@ void wait(int time){
 //      the program is terminating
 
 void print_Message(int message, int buttons[]){
-    char labels[17][20] = {"","B","Y","SELECT","START","Joy-pad UP","Joy-pad DOWN","Joy-pad LEFT","Joy-pad RIGHT","A","X","LEFT","RIGHT","","","",""};
+    //char labels[17][20] = {"","B","Y","SELECT","START","Joy-pad UP","Joy-pad DOWN","Joy-pad LEFT","Joy-pad RIGHT","A","X","LEFT","RIGHT","","","",""};
                                                                         // Array indices 1 - 12 are the labels for each of the SNES controller buttons
                                                                         
     if(message == 0){                                                   // Print start message
@@ -208,6 +208,11 @@ void print_Message(int message, int buttons[]){
                             drawFrames();
                             updateBoard();
                         }
+                        else{
+                            clear();
+                            quitBool = true;
+                        }
+
                     }
                 }else if(paused == true){ // if paused
                     movF = i;
@@ -372,12 +377,18 @@ void *clockie(void *id){
         while(startBool == false){
             ;   // wait until game is go
         }
+
+
         
         while((gameOver == false) && (timeLeft > 0)){   // calls are eventually redundant, but keeping for now with time testing
             
             // THIS WORKS IF ONLY WORRIED ABOUT SECOND INCREMENTS
             //sleep(1);   // this is a bs way to do it, but works so close to accurately that haters can hella bite me for the purposes of this game >:(
             //--timeLeft;
+
+            while(startBool == false){
+                ;   // wait until game is go
+            }
 
             // BELOW LINES ARE FOR KEEPING TRACK OF ~STANDARDIZED INCREMENTS IN MICROSECONDS
             wait(100000);   // wait 100k microseconds; roughly 6fps!!! <--------
@@ -395,10 +406,12 @@ void *clockie(void *id){
 
                     if(option == 1){ // user quit to main menu
                         paused = false;
+                        startBool = false;
+                        wait(150000);
                         drawMainMenu(1);
                         updateBoard();
-                        startBool = false;
-                        paused = false;
+                        //startBool = false;
+                        //paused = false;
                         gameOver = true;
 
                     }else if(option == 2){ // user reset game
@@ -426,27 +439,27 @@ void *clockie(void *id){
             
             
             // <- Need to reference frog here!!
-            
-            if(movF != 0){
-                //drawGameScreen(0);    // OLD; was unsure about this one, granted a sometimes move-triggered param
-                drawGameScreen(movF);
-                drawLanes();
-                updateLaneOffsets();
-                moveFrog(movF);
-                movF = 0;
-            } else {
-                drawGameScreen(0);    // <- still unsure about this one, granted a sometimes move-triggered param
-                drawLanes();
-                updateLaneOffsets();
-                drawFrog(1);    // could easily add more options to make this work for all 4 cardinal directions
+            if(startBool == true){
+                if(movF != 0){
+                    //drawGameScreen(0);    // OLD; was unsure about this one, granted a sometimes move-triggered param
+                    drawGameScreen(movF);
+                    drawLanes();
+                    updateLaneOffsets();
+                    moveFrog(movF);
+                    movF = 0;
+                } else {
+                    drawGameScreen(0);    // <- still unsure about this one, granted a sometimes move-triggered param
+                    drawLanes();
+                    updateLaneOffsets();
+                    drawFrog(1);    // could easily add more options to make this work for all 4 cardinal directions
+                }
+                
+                drawScore(1);
+                drawFrames();
+                drawTimer();
+                
+                updateBoard();
             }
-            
-            drawScore(1);
-            drawFrames();
-            drawTimer();
-            
-            updateBoard();
-            
             
             // BELOW FEW LINES ARE LARGELY FOR TESTING
             //if(timeLeft % 5 == 0){
