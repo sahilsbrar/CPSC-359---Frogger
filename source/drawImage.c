@@ -84,6 +84,9 @@ bool startGame = false;
 bool quitGame = false;
 bool goMain = false;
 bool reset = false;
+bool winner = false;
+bool loser = false;
+int score = 157;
 
 void resetGame(){
 	level = 1;
@@ -95,10 +98,16 @@ void resetGame(){
 	quitGame = false;
 	goMain = false;
 	reset = false;
+	winner = false;
+	loser = false;
 }
 
 int getOption(){
-	if(goMain == true){
+	if(winner == true){
+		return 3;
+	}else if(loser == true){
+		return 4;
+	}else if(goMain == true){
 		return 1;
 	}else if(reset == true){
 		return 2;
@@ -297,6 +306,57 @@ int drawFrames(){
 	return 0;
 }
 
+// Draws Win/Lose Screens
+int drawOutCome(){
+
+	/* initialize + get FBS */
+	framebufferstruct = initFbInfo();
+
+	/* initialize a pixel */
+	Pixel *pixel;
+	pixel = malloc(sizeof(Pixel));
+	int i=0;
+
+	short int *outcomePtr;
+
+	if(winner == true){ // win screen
+		outcomePtr=(short int *) winScreen.pixel_data; // dispay win message
+
+		for (int y = 200; y < 520; y++){ // 320 is the image height
+			for (int x = 320; x < 960; x++){ // 640 is image width
+
+				pixel->color = outcomePtr[i]; 
+				pixel->x = x;
+				pixel->y = y;
+
+				drawPixel(pixel);
+				i++;
+			}
+		}
+	} else{ // lose screen
+		outcomePtr=(short int *) loseScreen.pixel_data; // dispay lose message
+
+		for (int y = 200; y < 520; y++){ // 320 is the image height
+			for (int x = 320; x < 960; x++){ // 640 is image width
+
+				pixel->color = outcomePtr[i]; 
+				pixel->x = x;
+				pixel->y = y;
+
+				drawPixel(pixel);
+				i++;
+			}
+		}
+	}
+
+	/* free pixel's allocated memory */
+	free(pixel);
+	pixel = NULL;
+	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+	drawScore(2);
+	return 0;
+}
+
 // Draws pause
 int drawPause(int buttonPressed){
 
@@ -377,6 +437,7 @@ int drawFrog(int direction){
 	free(pixel);
 	pixel = NULL;
 	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+	drawScore(1);
 	drawMoves();
 	return 0;
 }
@@ -396,8 +457,23 @@ int moveFrog(int buttonPressed){
 		if(lastPressedY <= 155 && level == 4){	// Restricting level 4 top movements through gate only (feature)
 			if(lastPressedX == 576 || lastPressedX == 640){
 				lastPressedY = lastPressedY - 64;
-				movesTaken++; // incement moves taken
-				//win here
+				movesTaken++;
+				int move = movesLeft - movesTaken;
+
+				if(move >= 0){ //winner if moves are left
+					winner = true;
+					drawScore(1);
+					drawMoves(); // update moves left on bottom on screen
+					drawOutCome();
+					return 0;
+
+				}else{ // no moves to move up, loserrrrr
+					loser = true;
+					drawScore(1);
+					drawMoves(); // update moves left on bottom on screen
+					drawOutCome();
+					return 0;
+				}
 			}else{
 				lastPressedY = lastPressedY; // cannot move due to bounds
 			}
@@ -536,7 +612,134 @@ int moveFrog(int buttonPressed){
 	free(pixel);
 	pixel = NULL;
 	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+	drawScore(1);
 	drawMoves(); // update moves left on bottom on screen
+	return 0;
+}
+
+// function to display score on screen
+int drawScore(int location){
+
+	int num = score;
+	int mod1 = num % 10; // third digit
+	num = num / 10; // remove 3rd digit
+	int mod2 = num % 10; // second digit
+	num = num / 10; // first digit
+	/* initialize + get FBS */
+	framebufferstruct = initFbInfo();
+
+	/* initialize a pixel */
+	Pixel *pixel;
+	pixel = malloc(sizeof(Pixel));
+
+	if(location == 1){
+		// first digit
+		short int *numberPtr;
+		numberPtr=(short int *) numbersImg.pixel_data;
+		for (int y = 666; y < 720; y++){					
+			for (int x = 384; x < 415; x++) {
+
+				pixel->color = numberPtr[(x-384)+(y-665)*320+(32*num)];
+				pixel->x = x;
+				pixel->y = y;
+
+				if(pixel->color != 0){
+					drawPixel(pixel);
+				}
+			}
+		}
+
+		// second digit
+		short int *numberPtr2;
+		numberPtr2=(short int *) numbersImg.pixel_data;
+		for (int y = 666; y < 720; y++)
+		{					
+			for (int x = 416; x < 447; x++) 
+			{	
+				pixel->color = numberPtr2[(x-416)+(y-665)*320+(32*mod2)];
+				pixel->x = x;
+				pixel->y = y;
+
+				if(pixel->color != 0){
+					drawPixel(pixel);
+				}
+			}
+		}
+
+		// third digit
+		short int *numberPtr3;
+		numberPtr3=(short int *) numbersImg.pixel_data;
+		for (int y = 666; y < 720; y++)
+		{					
+			for (int x = 448; x < 479; x++) 
+			{	
+				pixel->color = numberPtr2[(x-448)+(y-665)*320+(32*mod1)];
+				pixel->x = x;
+				pixel->y = y;
+
+				if(pixel->color != 0){
+					drawPixel(pixel);
+				}
+			}
+		}
+
+	}else{
+		
+		// first digit
+		short int *numberPtr;
+		numberPtr=(short int *) numbersImg.pixel_data;
+		for (int y = 394; y < 449; y++){					
+			for (int x = 640; x < 671; x++) {
+
+				pixel->color = numberPtr[(x-640)+(y-393)*320+(32*num)];
+				pixel->x = x;
+				pixel->y = y;
+
+				if(pixel->color != 0){
+					drawPixel(pixel);
+				}
+			}
+		}
+
+		// second digit
+		short int *numberPtr2;
+		numberPtr2=(short int *) numbersImg.pixel_data;
+		for (int y = 394; y < 449; y++){					
+			for (int x = 672; x < 703; x++){
+
+				pixel->color = numberPtr2[(x-672)+(y-393)*320+(32*mod2)];
+				pixel->x = x;
+				pixel->y = y;
+
+				if(pixel->color != 0){
+					drawPixel(pixel);
+				}
+			}
+		}
+
+		// third digit
+		short int *numberPtr3;
+		numberPtr3=(short int *) numbersImg.pixel_data;
+		for (int y = 394; y < 449; y++){					
+			for (int x = 704; x < 735; x++){
+
+				pixel->color = numberPtr2[(x-704)+(y-393)*320+(32*mod1)];
+				pixel->x = x;
+				pixel->y = y;
+
+				if(pixel->color != 0){
+					drawPixel(pixel);
+				}
+			}
+		}
+		
+	}
+
+	/* free pixel's allocated memory */
+	free(pixel);
+	pixel = NULL;
+	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+	
 	return 0;
 }
 

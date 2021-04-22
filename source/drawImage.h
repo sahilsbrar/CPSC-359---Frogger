@@ -18,6 +18,7 @@ bool getQuit();
 void resetGame();
 int getOption();
 int clear();
+int drawOutCome();
 int drawPause();
 int drawMainMenu();
 int drawGameScreen();

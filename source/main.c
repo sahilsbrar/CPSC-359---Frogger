@@ -155,7 +155,22 @@ void print_Message(int message, int buttons[]){
             if(buttons[i] == 0 && i != 4 && i < 13){                    
                 // printf("\nYou have pressed %s\n", labels[i]);           // Prints pressed button message with appropriate label
 
-                if(startBool == false){ // on main menu
+                int value = getOption();
+                if(value == 3){ // if winner
+                    if(i != 0){
+                        resetGame();
+                        drawMainMenu(5);
+                        startBool = false;
+                    }
+                    
+                }else if(value == 4){
+                    if(i != 0){
+                        resetGame();
+                        drawMainMenu(5);
+                        startBool = false;
+                    }
+
+                }else if(startBool == false){ // on main menu
                     if(i == 5 || i == 6){
                         drawMainMenu(i); // cycling between main menu option
                         
@@ -270,8 +285,14 @@ void read_SNES(unsigned int *gpio){
             
             if(buttons[4] == 0){                                        // START button has been pressed
                 if(startBool == true){ // make sure not on main menu
+                    int check = getOption();
+                    if(check == 3){
+                        drawMainMenu(5);
+                        
+                    }else if(check == 4){
+                        drawMainMenu(5);
 
-                    if(paused == false){ // if not paused, pause
+                    }else if(paused == false){ // if not paused, pause
                         paused = true;    
                         drawPause(5);
 
