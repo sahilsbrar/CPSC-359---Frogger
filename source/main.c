@@ -455,11 +455,12 @@ void *clockie(void *id){
 
                         if(option == 1){ // user quit to main menu
                             drawMainMenu(5);
-                            updateBoard();
+                            //updateBoard();
                             startBool = false;
                             gameOver = true;
+                            timeLeft = 0;
                             paused = false;
-                            break;
+                            
 
                         }else if(option == 2){ // user reset game
                             resetGame();
