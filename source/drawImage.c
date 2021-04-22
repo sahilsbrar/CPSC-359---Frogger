@@ -8,6 +8,7 @@
 #include <time.h>
 
 #include "lostLife.h" 		// lostLife.pixel_data
+#include "valPack.h"		// valPack.pixel_data
 // levels
 #include "lvl1.h"			// lvl_one.pixel_data
 #include "lvl2.h"			// lvl_two.pixel_data
@@ -93,6 +94,9 @@ bool collided = false;
 bool browniePts = false;
 double timeLeft = 39.9;	// start with 40 seconds
 //int timeLeft = 40;	// start with 40 seconds
+bool valPlaced = false;
+int valX = 192;
+int valY = 153;
 
 short int colors[1500][1000];	// making much bigger than 1280*720 incase of OOB reference
 
@@ -150,6 +154,9 @@ void resetGame(){
 	reset = false;
 	winner = false;
 	loser = false;
+	valPlaced = false;
+	valX = 192;
+	valY = 153;
 	// maybe can reset time here, but believe presently needless
 }
 
@@ -418,6 +425,54 @@ int drawOutCome(){
 	//pixel = NULL;
 	//munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
 	drawScore(2);
+	return 0;
+}
+
+// Draws value pack
+int drawValPack(){
+
+	/* initialize + get FBS */
+	framebufferstruct = initFbInfo();
+
+	/* initialize a pixel */
+	Pixel *pixel;
+	pixel = malloc(sizeof(Pixel));
+	int i=0;
+
+	short int *pack=(short int *) valPack.pixel_data; // dispay reset game option selected
+
+	if(valPlaced == false){
+		int rando = rand() %16 + 3;
+		valX = 64 * rando;
+
+		int rando = rand() %8 + 2;
+		valY = (64 * rando) + 25;
+
+		for (int y = valY; y < valY + 63; y++){ // 320 is the image height
+			for (int x = valX; x < valX + 64; x++){ // 640 is image width
+				colors[x][y] = pack[i];
+				
+				i++;
+			}
+		}
+
+		valPlaced = true;
+	} else{
+
+		for (int y = valY; y < valY+63; y++){ // 320 is the image height
+			for (int x = valX; x < valX+64; x++){ // 640 is image width
+				colors[x][y] = pack[i];
+				
+				i++;
+			}
+		}
+	}
+
+	/* free pixel's allocated memory */
+	free(pixel);
+	pixel = NULL;
+	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+	
 	return 0;
 }
 
