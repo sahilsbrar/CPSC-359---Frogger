@@ -132,6 +132,7 @@ void frogDied(){
 	//--lives;
 	lastPressedX = 640;	// was 1200 (offset by +39)
 	lastPressedY = 537;		// was 538 (offset by -1)
+	// drecrease score
 }
 
 
@@ -163,6 +164,13 @@ int getOption(){
 		return 2;
 	}else{
 		return 0;
+	}
+}
+
+void getStatus(){
+	int num = movesLeft - movesTaken;
+	if(num < 0){
+		loser = true;
 	}
 }
 // called by main to see if game is started
@@ -798,8 +806,14 @@ int drawScore(int location){
 int drawMoves(){
 
 	int num = movesLeft - movesTaken;
-	int mod = num % 10; // second digit
-	num = num / 10; // first digit
+	int mod;
+	if(num < 0){
+		mod = 0;
+		num = 0;
+	}else{
+		mod = num % 10; // second digit
+		num = num / 10; // first digit
+	}
 	/* initialize + get FBS */
 	framebufferstruct = initFbInfo();
 
@@ -1041,7 +1055,10 @@ int drawTimer(){
 		}
 	}
 
-
+	if(timeLeft < 3){
+		loser = true;
+	}
+	
 	/* free pixel's allocated memory */
 	free(pixel);
 	pixel = NULL;
