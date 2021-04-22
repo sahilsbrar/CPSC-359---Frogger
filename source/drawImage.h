@@ -24,6 +24,7 @@ bool collided;
 void drawPixel(Pixel *pixel);
 bool getStart();
 bool getQuit();
+void getStatus();
 void resetGame();
 void frogDied();
 int updateBoard();

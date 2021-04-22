@@ -47,7 +47,7 @@ bool startBool = false;
 bool quitBool = false;
 bool paused = false;
 bool gameOver = true;
-
+bool timeUp = false;
 
 
 int movF = 0;    // which direction is the froggie moving in?!?
@@ -170,28 +170,31 @@ void print_Message(int message, int buttons[]){
 
                 int value = getOption();
                 if(value == 3){ // if winner
-                    movF = i;
+                    
                     // gameOver = true;
 
-                    // if(i != 0){
+                    if(i != 0){
+                        movF = i;
                     //     resetGame();
                     //     drawMainMenu(5);
                     //     updateBoard();
                     //     startBool = false;
                     //     gameOver = false;
-                    // }
+                    }
+                    
                     
                 }else if(value == 4){
-                    movF = i;
+                    
                     // gameOver = true;
                     // updateBoard();
-                    // if(i != 0){
+                    if(i != 0){
+                        movF = i;
                     //     resetGame();
                     //     drawMainMenu(5);
                     //     updateBoard();
                     //     startBool = false;
                     //     gameOver = false;
-                    // }
+                    }
 
                 }else if(startBool == false){ // on main menu
                     movF = i;
@@ -338,10 +341,11 @@ void read_SNES(unsigned int *gpio){
                     int check = getOption();
                     if(check == 3){
                         // drawMainMenu(5);
+                        movF = 5;
                         
                     }else if(check == 4){
                         // drawMainMenu(5);
-
+                        movF = 5;
                     }else if(paused == false){ // if not paused, pause
                         paused = true;    
                         // drawPause(5);
@@ -389,6 +393,8 @@ void *clockie(void *id){
                 
                 if(startBool == true){ // start game
                     gameOver = false;
+                    timeLeft = 39.99; // reset clock for a new round (dbl)
+                    timeUp = false;
                     resetGame();
                     drawGameScreen(0);
                     drawLanes();
@@ -405,6 +411,8 @@ void *clockie(void *id){
             }
         }
         
+        timeUp = false;
+        resetGame();
         while(gameOver == false){   // calls are eventually redundant, but keeping for now with time testing
             
             // THIS WORKS IF ONLY WORRIED ABOUT SECOND INCREMENTS
@@ -426,7 +434,7 @@ void *clockie(void *id){
             //checkCollision();   // TEST FOR COORDINATE CHECKING!!!
             
             // Value Pack #1
-            if(timeLeft < 11){
+            if(timeLeft < 12){
                 speedModifier += 0.008;
             }
 
@@ -436,31 +444,30 @@ void *clockie(void *id){
                 //wait(5000000);
                 drawOutCome();
                 updateBoard();
-                wait(5000000);
+                //wait(5000000);
                 bool exit = false;
                 while(exit == false){
                     if(movF != 0){
-                        resetGame();
                         drawMainMenu(5);
                         updateBoard();
                         startBool = false;
                         gameOver = true;
+                        timeLeft = 0;
                         exit = true;
                     }
                 }
                 
-            }else if(value == 4){
+            }else if(value == 4 || timeUp == true){
                 drawOutCome();
                 updateBoard();
-                wait(5000000);
                 bool exit = false;
                 while(exit == false){
                     if(movF != 0){
-                        resetGame();
                         drawMainMenu(5);
                         updateBoard();
                         startBool = false;
                         gameOver = true;
+                        timeLeft = 0;
                         exit = true;
                     }
                 }
@@ -481,7 +488,7 @@ void *clockie(void *id){
                             updateBoard();
                             startBool = false;
                             gameOver = true;
-                            timeLeft = 39.99; // Can't leave at 0 with new OoT check
+                            timeLeft = 0;
                             paused = false;
                             
 
@@ -514,7 +521,7 @@ void *clockie(void *id){
                 
                 // ACCOUNT FOR COLLISIONS!
                 if(collided == true){
-                    //score += 7;
+                    //score -= 7;
                     frogDied();
                     collided = false;
                 }
@@ -525,36 +532,21 @@ void *clockie(void *id){
                 drawTimer();
                 
                 updateBoard();
-
-                
             }
             
 
             // BELOW SEEMS HELLA DELAYED; MAYBE MAKE 1Sec??
-            if(timeLeft < 1){
-                timeLeft = 39.99;
-                drawOutCome();
-                updateBoard();
-                wait(5000000);
-                bool exit = false;
-                while(exit == false){
-                    if(movF != 0){
-                        resetGame();
-                        drawMainMenu(5);
-                        updateBoard();
-                        startBool = false;
-                        gameOver = true;
-                        exit = true;
-                    }
-                }
+            if(timeLeft < 3){
+                timeUp = true;
             }
+
+            getStatus();
 
             // BELOW FEW LINES ARE LARGELY FOR TESTING
             //if(timeLeft % 5 == 0){
             //    printf("You have %i seconds left!",timeLeft);
             //}
         }
-
         resetGame();
         drawMainMenu(5);
         updateBoard();
