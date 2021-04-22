@@ -78,7 +78,7 @@ int laneOccupancy[155] = {0,1,1,1,0,0,0,0,1,1,0,0,0,1,0,1,0,0,0,1,1,0,0,0,0,1,1,
 int lives = 4;	// player starts with 3 bonus lives! (as displayed on the game screen)
 int level = 1;
 int score = 0;
-int movesLeft = 75;
+int movesLeft = 76;
 int movesTaken = 0;
 int lastPressedX = 640;	// was 1200 (offset by +39)
 int lastPressedY = 537;	// was 538 (offset by -3)
@@ -139,7 +139,7 @@ void frogDied(){
 void resetGame(){
 	lives = 3;
 	level = 1;
-	movesLeft = 75;
+	movesLeft = 76;
 	movesTaken = 0;
 	score = 0;
 	lastPressedX = 640;	// was 1200 (offset by +39)
@@ -805,7 +805,7 @@ int drawScore(int location){
 // function to display moves remaining on screen
 int drawMoves(){
 
-	int num = movesLeft - movesTaken;
+	int num = movesLeft - movesTaken + 1 - movesLeft/76;
 	int mod;
 	if(num < 0){
 		mod = 0;
