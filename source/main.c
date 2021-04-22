@@ -425,6 +425,11 @@ void *clockie(void *id){
 
             //checkCollision();   // TEST FOR COORDINATE CHECKING!!!
             
+            // Value Pack #1
+            if(timeLeft < 11){
+                speedModifier += 0.008;
+            }
+
 
             int value = getOption();
             if(value == 3){ // if winner
@@ -506,13 +511,29 @@ void *clockie(void *id){
                     drawFrog(1);    // could easily add more options to make this work for all 4 cardinal directions
                 }
                 
+                // ACCOUNT FOR COLLISIONS!
+                if(collided == true){
+                    //score += 7;
+                    frogDied();
+                    collided = false;
+                }
+                // RESET FROG AT BEGINNING OF LEVEL HERE!!!
+
                 drawScore(1);
                 drawFrames();
                 drawTimer();
                 
                 updateBoard();
+
+                
             }
             
+
+            // BELOW SEEMS HELLA DELAYED; MAYBE MAKE 1Sec??
+            if(timeLeft < 1){
+                gameOver = true;
+            }
+
             // BELOW FEW LINES ARE LARGELY FOR TESTING
             //if(timeLeft % 5 == 0){
             //    printf("You have %i seconds left!",timeLeft);

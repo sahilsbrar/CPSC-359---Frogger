@@ -53,8 +53,8 @@
 
 
 //int playSound( char *filename ) {
-	//char command[256];
 	//int status;
+	//char command[256];
 	
 	/* create command to execute */
 	//sprintf( command, "aplay -c 1 -q -t wav %s", filename );
@@ -67,15 +67,15 @@
 
 struct fbs framebufferstruct;
 
-int laneOffsets[5] = {25,35,15,0,10};				// pixels offset
+int laneOffsets[5] = {25,35,15,20,10};				// pixels offset
 int laneIndices[5] = {0,30,60,90,120};
 double laneSpeeds[5] = {8.0,-12.0,10.0,-9.0,8.0};
-double speedModifier = 2.0;
+double speedModifier = 1.5;
 
 int laneOccupancy[155] = {0,1,1,1,0,0,0,0,1,1,0,0,0,1,0,1,0,0,0,1,1,0,0,0,0,1,1,0,1,0,0,0,1,1,1,1,0,0,0,1,1,0,0,0,1,1,0,0,1,1,1,1,0,0,0,0,1,1,0,1,1,0,0,0,1,1,0,0,0,0,1,0,1,0,0,1,0,0,0,1,1,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0,1,1,0,1,1,0,0,1,1,0,0,0,0,0,0,1,0,1,1,0,1,1,1,0,0,0,0,0,0,1,1,0,0,0,1,1,0,0,0,0};
 
 // Variables -> possible struct here?
-int lives = 3;
+int lives = 4;	// player starts with 3 bonus lives! (as displayed on the game screen)
 int level = 1;
 int score = 0;
 int movesLeft = 75;
@@ -125,6 +125,15 @@ int updateBoard(){
 	
 	return 0;
 }
+
+void frogDied(){
+	// reset level???
+	// DRAW AN 'X' OVER LIFE TAKEN!!!
+	//--lives;
+	lastPressedX = 640;	// was 1200 (offset by +39)
+	lastPressedY = 537;		// was 538 (offset by -1)
+}
+
 
 void resetGame(){
 	lives = 3;
@@ -480,7 +489,7 @@ int drawFrog(int direction){
 
 			if (frogPtr[i+64] != 0){ // dont print black pixels (for around frog)
 				//drawPixel(pixel);
-				colors[x][y] = frogPtr[i+64];
+				colors[x][y] = frogPtr[i+64];	// + 420 / (int)(timeLeft + 1);	<--- +1 avoids floating point issues
 				;
 			}
 			i++;
@@ -1052,6 +1061,15 @@ void drawPixel(Pixel *pixel){
 
 /* Draws each obstacle lane */
 int drawLanes(){
+
+	collided = false;
+
+	if(level == 2){
+		if((0 < ((537 - lastPressedY) / 64)) && (((537 - lastPressedY) / 64) < 6)){
+			collided = true;	// backwards, such that not colliding with an obstacle is bad!
+		}
+	}
+
 	/* initialize + get FBS */
 	framebufferstruct = initFbInfo();
 	
@@ -1071,25 +1089,33 @@ int drawLanes(){
 				int offset = laneOffsets[(n-1)] + q*64;	// 64 is per grid space
 				int lane = n;
 
-				// BELOW ARE FOR FROGGY COORDINATE REFERENCE!
-				//int frogLane = (537 - lastPressedY) / 64;	// array index for lanes is -1 of this!
-				//int frogColumn = (lastPressedX - 128) / 64; // index for pseudo-columns is -1???
-
-
-				// COLLISION DETECTION!
-				if((level != 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + 1)){
-					score += 1;
-				}
-
-				if((level == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + 1)){
-					score -= 1;
-				}
-
-
 
 				if ((lane == 2) && (laneOccupancy[(laneIndices[n-1] + q + 1) % 155] == 0)){
 					continue;	// don't print for this q value, as there is nothing beyond it
 				}
+
+
+				// BELOW ARE FOR FROGGY COORDINATE REFERENCE!
+				//int frogLane = (537 - lastPressedY) / 64;		// array index for lanes is -1 of this!
+				//int frogColumn = (lastPressedX - 128) / 64; 	// index for pseudo-columns is -1???
+
+				// NEED BELOW VALUE BECAUSE OF NEG vs POS LANE OFFSETS!	<--- was 1 previously
+				int laneCollisionOffset = lane % 2;		// +1 for 1,3,5 & + 2 for 2,4
+
+				// COLLISION DETECTION!
+				if((level != 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + laneCollisionOffset)){
+					//score += 1;
+					collided = true;
+				}
+
+				// NEED BOTH OF THE BELOW IF-STATEMENTS!!
+				
+				if((level == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + 1)){
+					//score += 1;
+					collided = false;	// per initially, we want collision to equal no collision for lvl 2!
+				}
+
+
 
 				if (lane == 2){
 					q++;	// avoid printing overlapping, double-long obstacles

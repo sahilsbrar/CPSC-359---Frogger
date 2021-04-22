@@ -25,6 +25,7 @@ void drawPixel(Pixel *pixel);
 bool getStart();
 bool getQuit();
 void resetGame();
+void frogDied();
 int updateBoard();
 int getOption();
 int clear();
