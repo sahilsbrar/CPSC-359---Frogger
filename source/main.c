@@ -452,6 +452,7 @@ void *clockie(void *id){
             }else if(value == 4){
                 drawOutCome();
                 updateBoard();
+                wait(5000000);
                 bool exit = false;
                 while(exit == false){
                     if(movF != 0){
@@ -480,7 +481,7 @@ void *clockie(void *id){
                             updateBoard();
                             startBool = false;
                             gameOver = true;
-                            timeLeft = 0;
+                            timeLeft = 39.99; // Can't leave at 0 with new OoT check
                             paused = false;
                             
 
@@ -531,7 +532,21 @@ void *clockie(void *id){
 
             // BELOW SEEMS HELLA DELAYED; MAYBE MAKE 1Sec??
             if(timeLeft < 1){
-                gameOver = true;
+                timeLeft = 39.99;
+                drawOutCome();
+                updateBoard();
+                wait(5000000);
+                bool exit = false;
+                while(exit == false){
+                    if(movF != 0){
+                        resetGame();
+                        drawMainMenu(5);
+                        updateBoard();
+                        startBool = false;
+                        gameOver = true;
+                        exit = true;
+                    }
+                }
             }
 
             // BELOW FEW LINES ARE LARGELY FOR TESTING
