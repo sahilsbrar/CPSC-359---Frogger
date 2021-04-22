@@ -188,6 +188,8 @@ int clear(){
 	free(pixel);
 	pixel = NULL;
 	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+
+	//updateBoard();
 	
 	return 0;
 }
@@ -346,11 +348,11 @@ int drawFrames(){
 int drawOutCome(){
 
 	/* initialize + get FBS */
-	framebufferstruct = initFbInfo();
+	//framebufferstruct = initFbInfo();
 
 	/* initialize a pixel */
-	Pixel *pixel;
-	pixel = malloc(sizeof(Pixel));
+	//Pixel *pixel;
+	//pixel = malloc(sizeof(Pixel));
 	int i=0;
 
 	short int *outcomePtr;
@@ -360,12 +362,12 @@ int drawOutCome(){
 
 		for (int y = 200; y < 520; y++){ // 320 is the image height
 			for (int x = 320; x < 960; x++){ // 640 is image width
+				colors[x][y] = outcomePtr[i];
+				//pixel->color = outcomePtr[i]; 
+				//pixel->x = x;
+				//pixel->y = y;
 
-				pixel->color = outcomePtr[i]; 
-				pixel->x = x;
-				pixel->y = y;
-
-				drawPixel(pixel);
+				//drawPixel(pixel);
 				i++;
 			}
 		}
@@ -374,21 +376,27 @@ int drawOutCome(){
 
 		for (int y = 200; y < 520; y++){ // 320 is the image height
 			for (int x = 320; x < 960; x++){ // 640 is image width
+				colors[x][y] = outcomePtr[i];
+				//pixel->color = outcomePtr[i]; 
+				//pixel->x = x;
+				//pixel->y = y;
 
-				pixel->color = outcomePtr[i]; 
-				pixel->x = x;
-				pixel->y = y;
-
-				drawPixel(pixel);
+				//drawPixel(pixel);
 				i++;
+				//pixel->color = outcomePtr[i]; 
+				//pixel->x = x;
+				//pixel->y = y;
+
+				//drawPixel(pixel);
+				//i++;
 			}
 		}
 	}
 
 	/* free pixel's allocated memory */
-	free(pixel);
-	pixel = NULL;
-	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+	//free(pixel);
+	//pixel = NULL;
+	//munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
 	drawScore(2);
 	return 0;
 }

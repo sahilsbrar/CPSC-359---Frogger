@@ -155,7 +155,7 @@ void wait(int time){
 //      the program is terminating
 
 void print_Message(int message, int buttons[]){
-    char labels[17][20] = {"","B","Y","SELECT","START","Joy-pad UP","Joy-pad DOWN","Joy-pad LEFT","Joy-pad RIGHT","A","X","LEFT","RIGHT","","","",""};
+    //char labels[17][20] = {"","B","Y","SELECT","START","Joy-pad UP","Joy-pad DOWN","Joy-pad LEFT","Joy-pad RIGHT","A","X","LEFT","RIGHT","","","",""};
                                                                         // Array indices 1 - 12 are the labels for each of the SNES controller buttons
                                                                         
     if(message == 0){                                                   // Print start message
@@ -365,7 +365,8 @@ void read_SNES(unsigned int *gpio){
         
         printf("Time left is: %f", timeLeft);
         
-        clear();
+        //clear();
+        //updateBoard();
     //status = false;                                                   // For future functionality (dealing with START menu, game states, and whatnot)
     //}                                                                 // For future functionality (dealing with START menu, game states, and whatnot)
 }
@@ -394,6 +395,8 @@ void *clockie(void *id){
                     drawFrames();
                     updateBoard();
                 }else if(quitBool == true){
+                    //clear();
+                    //updateBoard();
                     gameOver = true;
                     startBool = true;
                     timeLeft = 0;
@@ -407,6 +410,10 @@ void *clockie(void *id){
             //sleep(1);   // this is a bs way to do it, but works so close to accurately that haters can hella bite me for the purposes of this game >:(
             //--timeLeft;
 
+            //while(paused == true){
+            //   ;
+            //
+
             // BELOW LINES ARE FOR KEEPING TRACK OF ~STANDARDIZED INCREMENTS IN MICROSECONDS
             wait(100000);   // wait 100k microseconds; roughly 6fps!!! <--------
             timeLeft -= 0.1;   // COMPARE THIS VALUE TO ABOVE MICROSECONDS
@@ -414,8 +421,10 @@ void *clockie(void *id){
 
             int value = getOption();
             if(value == 3){ // if winner
+                //wait(5000000);
                 drawOutCome();
                 updateBoard();
+                //wait(5000000);
                 bool exit = false;
                 while(exit == false){
                     if(movF != 0){
@@ -449,13 +458,14 @@ void *clockie(void *id){
                     if(movF == 5 || movF == 6){
                         drawPause(movF); // cycle between options (UP or DOWN pressed)
                         updateBoard();
+                        //wait(5000000);
 
                     } else if(movF == 9){ // if user selects option
                         int option = getOption(); // get option
 
                         if(option == 1){ // user quit to main menu
                             drawMainMenu(5);
-                            //updateBoard();
+                            updateBoard();
                             startBool = false;
                             gameOver = true;
                             timeLeft = 0;
@@ -501,13 +511,18 @@ void *clockie(void *id){
             //    printf("You have %i seconds left!",timeLeft);
             //}
         }
+
         resetGame();
         drawMainMenu(5);
         updateBoard();
-        gameOver = true;    // either game is already done or timeLeft == 0
-        printf("Game Over!");
+        startBool = false;
+        movF = 0;
+        //gameOver = true;    // either game is already done or timeLeft == 0
+        //printf("Game Over!");
     }
-    clear();
+    //clear();
+    //updateBoard();
+
     pthread_exit(0);
 }
 
@@ -535,6 +550,9 @@ int main(){
     */
 
     read_SNES(gpio);                                                    // Calls controller reading subroutine
+
+    //clear();
+    //updateBoard();
 
     return 0;
 }
