@@ -958,7 +958,7 @@ int drawDeaths(){
 // function to display score on screen
 int drawScore(int location){
 	int t = (int) timeLeft;
-	score = t + movesLeft - movesTaken + (lives * 28) + bonusPoints;
+	score = (t + movesLeft - movesTaken + (lives * 78) + bonusPoints)*1;
  
 	int modH = score / 100;	// hundreds digit
 	int modT = score / 10;	// tens digit
