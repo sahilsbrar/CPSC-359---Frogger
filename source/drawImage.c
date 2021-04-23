@@ -213,12 +213,12 @@ int clear(){
 
 	for (int y = 0; y < 720; y++){ // 720 is the image height
 		for (int x = 0; x < 1280; x++){ // 1280 is image width
-			colors[x][y] = 0;
-			//pixel->color = 0; 
-			//pixel->x = x;
-			//pixel->y = y;
+			// colors[x][y] = 0;
+			pixel->color = 0; 
+			pixel->x = x;
+			pixel->y = y;
 
-			//drawPixel(pixel);
+			drawPixel(pixel);
 		}
 	}
 

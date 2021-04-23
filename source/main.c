@@ -403,8 +403,8 @@ void *clockie(void *id){
                     drawFrames();
                     updateBoard();
                 }else if(quitBool == true){
-                    //clear();
-                    //updateBoard();
+                    clear();
+                    // updateBoard();
                     gameOver = true;
                     startBool = true;
                     timeLeft = 0;
@@ -552,13 +552,15 @@ void *clockie(void *id){
             //    printf("You have %i seconds left!",timeLeft);
             //}
         }
-        resetGame();
-        drawMainMenu(5);
-        updateBoard();
-        startBool = false;
-        movF = 0;
-        //gameOver = true;    // either game is already done or timeLeft == 0
-        //printf("Game Over!");
+        if(quitBool == false){
+            resetGame();
+            drawMainMenu(5);
+            updateBoard();
+            startBool = false;
+            movF = 0;
+            //gameOver = true;    // either game is already done or timeLeft == 0
+            //printf("Game Over!");
+        }
     }
     //clear();
     //updateBoard();
