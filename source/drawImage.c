@@ -71,7 +71,7 @@ struct fbs framebufferstruct;
 int laneOffsets[5] = {25,35,15,20,10};				// pixels offset
 int laneIndices[5] = {0,30,60,90,120};
 double laneSpeeds[5] = {8.0,-10.0,12.0,-8.0,9.0};
-double speedModifier = 1.5;
+double speedModifier = 1.7;
 
 int laneOccupancy[155] = {0,1,1,1,0,0,0,0,1,1,0,0,0,1,0,1,0,0,0,1,1,0,0,0,0,1,1,0,1,0,0,0,1,1,1,1,0,0,0,1,1,0,0,0,1,1,0,0,1,1,1,1,0,0,0,0,1,1,0,1,1,0,0,0,1,1,0,0,0,0,1,0,1,0,0,1,0,0,0,1,1,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0,1,1,0,1,1,0,0,1,1,0,0,0,0,0,0,1,0,1,1,0,1,1,1,0,0,0,0,0,0,1,1,0,0,0,1,1,0,0,0,0};
 
@@ -92,6 +92,7 @@ bool loser = false;
 bool collided = false;
 // int score = 157;
 bool browniePts = false;
+bool speedupClaimed = false;
 double timeLeft = 39.9;	// start with 40 seconds
 //int timeLeft = 40;	// start with 40 seconds
 bool valPlaced[4] = {false, false, false, false};
@@ -148,6 +149,7 @@ void resetGame(){
 	movesLeft = 99;
 	movesTaken = 0;
 	score = 0;
+	speedModifier = 1.7;
 	lastPressedX = 640;	// was 1200 (offset by +39)
 	lastPressedY = 537;		// was 538 (offset by -1)
 	startGame = false;
@@ -447,6 +449,10 @@ void checkClaim(){
 	} else if(level == 2){
 		if(valX[1] == lastPressedX && valY[1] == lastPressedY){
 			claim[1] = true;
+			if(speedupClaimed == false){
+				speedModifier = speedModifier - 0.2;
+			}
+			speedupClaimed = true;
 		}
 	} if(level == 3){
 		if(valX[2] == lastPressedX && valY[2] == lastPressedY){
