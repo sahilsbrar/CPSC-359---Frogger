@@ -70,7 +70,7 @@ struct fbs framebufferstruct;
 
 int laneOffsets[5] = {25,35,15,20,10};				// pixels offset
 int laneIndices[5] = {0,30,60,90,120};
-double laneSpeeds[5] = {8.0,-12.0,10.0,-9.0,8.0};
+double laneSpeeds[5] = {8.0,-10.0,12.0,-8.0,9.0};
 double speedModifier = 1.5;
 
 int laneOccupancy[155] = {0,1,1,1,0,0,0,0,1,1,0,0,0,1,0,1,0,0,0,1,1,0,0,0,0,1,1,0,1,0,0,0,1,1,1,1,0,0,0,1,1,0,0,0,1,1,0,0,1,1,1,1,0,0,0,0,1,1,0,1,1,0,0,0,1,1,0,0,0,0,1,0,1,0,0,1,0,0,0,1,1,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0,1,1,0,1,1,0,0,1,1,0,0,0,0,0,0,1,0,1,1,0,1,1,1,0,0,0,0,0,0,1,1,0,0,0,1,1,0,0,0,0};
@@ -79,7 +79,7 @@ int laneOccupancy[155] = {0,1,1,1,0,0,0,0,1,1,0,0,0,1,0,1,0,0,0,1,1,0,0,0,0,1,1,
 int lives = 4;	// player starts with 3 bonus lives! (as displayed on the game screen)
 int level = 1;
 int score = 0;
-int movesLeft = 75;
+int movesLeft = 76;
 int movesTaken = 0;
 int lastPressedX = 640;	// was 1200 (offset by +39)
 int lastPressedY = 537;	// was 538 (offset by -3)
@@ -145,7 +145,7 @@ void frogDied(){
 void resetGame(){
 	lives = 3;
 	level = 1;
-	movesLeft = 75;
+	movesLeft = 76;
 	movesTaken = 0;
 	score = 0;
 	lastPressedX = 640;	// was 1200 (offset by +39)
@@ -938,7 +938,7 @@ int drawScore(int location){
 // function to display moves remaining on screen
 int drawMoves(){
 
-	int num = movesLeft - movesTaken;
+	int num = movesLeft - movesTaken + 1 - movesLeft/76;
 	int mod;
 	if(num < 0){
 		mod = 0;
@@ -1251,19 +1251,52 @@ int drawLanes(){
 
 				// NEED BELOW VALUE BECAUSE OF NEG vs POS LANE OFFSETS!	<--- was 1 previously
 				int laneCollisionOffset = lane % 2;		// +1 for 1,3,5 & + 2 for 2,4
+				if (level > 2){
+					laneCollisionOffset = -laneCollisionOffset + 1;
+				}
 
 				// COLLISION DETECTION!
 				if((level != 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + laneCollisionOffset)){
 					//score += 1;
 					collided = true;
 				}
+				if((level != 2) && (lane == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + 1 + laneCollisionOffset)){
+					//score += 1;
+					collided = true;	// second half of double-wide
+				}
+
 
 				// NEED BOTH OF THE BELOW IF-STATEMENTS!!
-				
-				if((level == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + 1)){
+
+				if((level == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + laneCollisionOffset)){
 					//score += 1;
 					collided = false;	// per initially, we want collision to equal no collision for lvl 2!
 				}
+
+				if((level == 2) && (lane == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + 1 + laneCollisionOffset)){
+					//score += 1;
+					collided = false;	// second half of double-wide
+				}
+
+				//if((level == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) > q + 1 - 0.5) && (((lastPressedX - 128) / 64) < q + 1 + 0.5)){
+				//	//score += 1;
+				//	collided = false;	// per initially, we want collision to equal no collision for lvl 2!
+				//}
+
+				//if((level == 2) && (lane == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) > q - 0.5) && (((lastPressedX - 128) / 64) < q + 0.5)){
+				//	//score += 1;
+				//	collided = false;	// second half of double-wide
+				//}
+				
+				//if((level == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + 1)){
+				//	//score += 1;
+				//	collided = false;	// per initially, we want collision to equal no collision for lvl 2!
+				//}
+
+				//if((level == 2) && (lane == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q)){
+				//	//score += 1;
+				//	collided = false;	// second half of double-wide
+				//}
 
 
 
