@@ -78,7 +78,7 @@ int laneOccupancy[155] = {0,1,1,1,0,0,0,0,1,1,0,0,0,1,0,1,0,0,0,1,1,0,0,0,0,1,1,
 // Variables -> possible struct here?
 int lives = 4;	// player starts with 3 bonus lives! (as displayed on the game screen)
 int level = 1;
-int score = 0;
+int score = 250; // MAX score, loses points as game continues (increases with value packs)
 int movesLeft = 99;
 int movesTaken = 0;
 int lastPressedX = 640;	// was 1200 (offset by +39)
@@ -90,11 +90,10 @@ bool reset = false;
 bool winner = false;
 bool loser = false;
 bool collided = false;
-// int score = 157;
 bool browniePts = false;
 bool speedupClaimed = false;
 double timeLeft = 39.9;	// start with 40 seconds
-//int timeLeft = 40;	// start with 40 seconds
+int bonusPoints = 0;
 bool valPlaced[4] = {false, false, false, false};
 bool calc[4] = {false, false, false, false};
 bool claim[4] = {false, false, false, false};
@@ -148,8 +147,7 @@ void resetGame(){
 	level = 1;
 	movesLeft = 99;
 	movesTaken = 0;
-	score = 0;
-	speedModifier = 1.7;
+	score = 250;
 	lastPressedX = 640;	// was 1200 (offset by +39)
 	lastPressedY = 537;		// was 538 (offset by -1)
 	startGame = false;
@@ -158,6 +156,7 @@ void resetGame(){
 	reset = false;
 	winner = false;
 	loser = false;
+	bonusPoints = 0;
 
 	for(int i = 0; i < 4; i++){
 		valPlaced[i] = false;
@@ -186,7 +185,7 @@ int getOption(){
 
 void getStatus(){
 	int num = movesLeft - movesTaken;
-	if(num < 0){
+	if(num < 1){
 		loser = true;
 	}
 	if(lives < 1){
@@ -441,13 +440,16 @@ int drawOutCome(){
 	return 0;
 }
 
+// checks if specific levels value pack has been claimed
 void checkClaim(){
 	if(level == 1){
 		if(valX[0] == lastPressedX && valY[0] == lastPressedY){
+			bonusPoints = 100;
 			claim[0] = true;
 		}
 	} else if(level == 2){
 		if(valX[1] == lastPressedX && valY[1] == lastPressedY){
+			//slower time
 			claim[1] = true;
 			if(speedupClaimed == false){
 				speedModifier = speedModifier - 0.2;
@@ -456,10 +458,16 @@ void checkClaim(){
 		}
 	} if(level == 3){
 		if(valX[2] == lastPressedX && valY[2] == lastPressedY){
+			if(lives < 4){
+				lives = lives + 1;
+			}else{
+				movesLeft = movesLeft + 10;
+			}
 			claim[2] = true;
 		}
 	} if(level == 4){
 		if(valX[3] == lastPressedX && valY[3] == lastPressedY){
+			movesLeft = movesLeft + 10;
 			claim[3] = true;
 		}
 	} 
@@ -720,11 +728,6 @@ int moveFrog(int buttonPressed){
 				movesTaken++;
 				int move = movesLeft - movesTaken;
 
-				if(browniePts == false){	// MAKES SURE THAT WINNING PTS GAIN ONLY HAPPENS ONCE!!
-					score += 100;	// good for you
-					browniePts = true;	// such wow
-				}
-
 				if(move >= 0){ //winner if moves are left
 					winner = true;
 					drawScore(1);
@@ -747,7 +750,6 @@ int moveFrog(int buttonPressed){
 		}else{ // regular up movements
 			lastPressedY = lastPressedY - 64;
 			movesTaken++;	// increment moves taken
-			score += 10;	// you deserve this so much
 		}
 
 		short int *frogPtr=(short int *) frogFWD.pixel_data; // set forward movement image
@@ -944,7 +946,9 @@ int drawDeaths(){
 
 // function to display score on screen
 int drawScore(int location){
-
+	int t = (int) timeLeft;
+	score = t + movesLeft - movesTaken + (lives * 28) + bonusPoints;
+ 
 	int modH = score / 100;	// hundreds digit
 	int modT = score / 10;	// tens digit
 	int modO = score % 10;	// ones digit
@@ -1159,101 +1163,6 @@ int drawMoves(){
 	
 	return 0;
 }
-
-// /* Draw the Current Score */
-// int drawScore(){
-
-// 	int modH = score / 100;	// hundreds digit
-// 	int modT = score / 10;	// tens digit
-// 	int modO = score % 10;	// ones digit
-	
-// 	/* initialize + get FBS */
-// 	framebufferstruct = initFbInfo();
-
-// 	/* initialize a pixel */
-// 	Pixel *pixel;
-// 	pixel = malloc(sizeof(Pixel));
-
-	
-// 	// TEST: use just the one point cuz why tf not if same file :(
-// 	short int *numberPtr;
-// 	numberPtr=(short int *) numbersImg.pixel_data;
-
-// 	// hundreds digit
-// 				//short int *numberPtr;
-// 				//numberPtr=(short int *) numbersImg.pixel_data;
-// 	for (int y = 666; y < 729; y++){					
-// 		for (int x = 384; x < 415; x++) {
-// 				// ^ -384 from "Moves"; was 768, 799
-// 			//colors[x][y] = numberPtr[(x-384)+(y-665)*320+(32*modH)];
-			
-// 			//pixel->color = numberPtr[(x-384)+(y-665)*320+(32*modH)];
-			
-// 			//pixel->x = x;
-// 			//pixel->y = y;
-
-// 			//if(pixel->color == -9340){
-// 			if(numberPtr[(x-384)+(y-665)*320+(32*modH)] == -9340){
-// 				//printf("Our colour is: %d!", pixel->color);	// TEST
-// 				//drawPixel(pixel);
-// 				colors[x][y] = numberPtr[(x-384)+(y-665)*320+(32*modH)];
-// 			}
-// 		}
-// 	}
-
-// 	// second digit
-// 				//short int *numberPtr2;
-// 				//numberPtr2=(short int *) numbersImg.pixel_data;
-// 	for (int y = 666; y < 729; y++){					
-// 		for (int x = 416; x < 447; x++) {
-// 				// ^ -384 from "Moves"; was 800, 831	
-// 			//colors[x][y + modH] = numberPtr[(x-416)+(y-665)*320+(32*modT)];
-			
-// 			//pixel->color = numberPtr[(x-416)+(y-665)*320+(32*modT)];
-// 			// ^ WAS: pixel->color = numberPtr2[(x-416)+(y-665)*320+(32*modT)];
-// 			//pixel->x = x;
-// 			//pixel->y = y + modH;	// sometimes the thing goes up...?; adding "+ modH" as a band-aid
-
-// 			//if(pixel->color == -9340){
-// 			if(numberPtr[(x-416)+(y-665)*320+(32*modT)] == -9340){
-// 				//printf("Our colour is: %d!", pixel->color);	// TEST
-// 				//drawPixel(pixel);
-// 				colors[x][y + modH] = numberPtr[(x-416)+(y-665)*320+(32*modT)];
-// 				//colors[x][y] = numberPtr[(x-416)+(y-665)*320+(32*modT)];
-// 			}
-// 		}
-// 	}
-	
-// 	// third digit
-// 				//short int *numberPtr3;
-// 				//numberPtr3=(short int *) numbersImg.pixel_data;
-// 	for (int y = 666; y < 729; y++){					
-// 		for (int x = 448; x < 479; x++) {
-// 				// ^ -384 from "Moves"; +32 from 2nd digit's 416/447	
-// 			//colors[x][y] = numberPtr[(x-448)+(y-665)*320+(32*modO)];
-			
-// 			//pixel->color = numberPtr[(x-448)+(y-665)*320+(32*modO)];
-// 			// ^ WAS: pixel->color = numberPtr3[(x-416)+(y-665)*320+(32*modT)];
-// 			//pixel->x = x;
-// 			//pixel->y = y;
-
-// 			//if(pixel->color == -9340){
-// 			if(numberPtr[(x-448)+(y-665)*320+(32*modO)] == -9340){
-// 				//printf("Our colour is: %d!", pixel->color);	// TEST
-// 				//drawPixel(pixel);
-// 				colors[x][y] = numberPtr[(x-448)+(y-665)*320+(32*modO)];
-// 			}
-// 		}
-// 	}
-
-
-// 	/* free pixel's allocated memory */
-// 	free(pixel);
-// 	pixel = NULL;
-// 	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
-	
-// 	return 0;
-// }
 
 /* Draw the timer */
 int drawTimer(){

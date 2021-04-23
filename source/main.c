@@ -442,10 +442,8 @@ void *clockie(void *id){
 
             int value = getOption();
             if(value == 3){ // if winner
-                //wait(5000000);
                 drawOutCome();
                 updateBoard();
-                //wait(5000000);
                 bool exit = false;
                 while(exit == false){
                     if(movF != 0){
