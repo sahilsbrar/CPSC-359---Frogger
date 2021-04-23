@@ -356,8 +356,18 @@ void *clockie(void *id){
                     }
                 }
                 
-            }else if(value == 4 || timeUp == true){ // if lose game
-                drawOutCome();  // draw lose screen
+            }else if(value == 4 || timeUp == true){ // if lost game
+                drawGameScreen(0);   // update screen for all parts and show lose screen
+                drawLanes();
+                drawValPack();
+                drawFrog(1);
+
+                drawFrames();
+            
+                drawTimer();
+                drawDeaths();
+                
+                drawOutCome();
                 updateBoard();
                 wait(1000);
                 bool exit = false;
