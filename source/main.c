@@ -530,6 +530,7 @@ void *clockie(void *id){
                 drawScore(1);
                 drawFrames();
                 drawTimer();
+                drawDeaths();
                 
                 updateBoard();
             }

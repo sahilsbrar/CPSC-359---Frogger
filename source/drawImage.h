@@ -42,5 +42,6 @@ int drawScore();
 int drawTimer();
 int drawLanes();
 int updateLaneOffsets();	// updates the offsets for the lanes; to be clock-synchronized
+int drawDeaths();
 //bool checkCollision();		// checks if our dear froggy has collided with an obstacle!
 #endif
