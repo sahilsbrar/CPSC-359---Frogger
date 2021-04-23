@@ -529,6 +529,7 @@ void *clockie(void *id){
 
                 drawScore(1);
                 drawFrames();
+                drawValPack();
                 drawTimer();
                 
                 updateBoard();

@@ -94,9 +94,11 @@ bool collided = false;
 bool browniePts = false;
 double timeLeft = 39.9;	// start with 40 seconds
 //int timeLeft = 40;	// start with 40 seconds
-bool valPlaced = false;
-int valX = 192;
-int valY = 153;
+bool valPlaced[4] = {false, false, false, false};
+bool calc[4] = {false, false, false, false};
+bool claim[4] = {false, false, false, false};
+int valX[4] = {192, 192, 192, 192};
+int valY[4] = {153, 153, 153, 153};
 
 short int colors[1500][1000];	// making much bigger than 1280*720 incase of OOB reference
 
@@ -154,9 +156,16 @@ void resetGame(){
 	reset = false;
 	winner = false;
 	loser = false;
-	valPlaced = false;
-	valX = 192;
-	valY = 153;
+
+	for(int i = 0; i < 4; i++){
+		valPlaced[i] = false;
+		calc[i] = false;
+		claim[i] = false;
+		valX[i] = 192;
+		valY[i] = 153;
+		i++;
+	}
+
 	// maybe can reset time here, but believe presently needless
 }
 
@@ -441,32 +450,101 @@ int drawValPack(){
 
 	short int *pack=(short int *) valPack.pixel_data; // dispay reset game option selected
 
-	if(valPlaced == false){
-		int rando = rand() %16 + 3;
-		valX = 64 * rando;
+	int rando;
 
-		int rando = rand() %8 + 2;
-		valY = (64 * rando) + 25;
+	if((valPlaced[0] == false && level == 1) || (claim[0] == false && level == 1)){ // lvl 1
+		
+		if(calc[0] == false){
 
-		for (int y = valY; y < valY + 63; y++){ // 320 is the image height
-			for (int x = valX; x < valX + 64; x++){ // 640 is image width
+			while(valX[0] == lastPressedX || valY[0] == 537){
+				rando = rand() %16 + 3;
+				valX[0] = 64 * rando;
+
+				rando = rand() %8 + 2;
+				valY[0] = (64 * rando) + 25;
+			}
+			calc[0] = true;
+		}
+
+		for (int y = valY[0]; y < valY[0] + 63; y++){ // 320 is the image height
+			for (int x = valX[0]; x < valX[0] + 64; x++){ // 640 is image width
 				colors[x][y] = pack[i];
 				
 				i++;
 			}
 		}
 
-		valPlaced = true;
-	} else{
+		valPlaced[0] = true;
 
-		for (int y = valY; y < valY+63; y++){ // 320 is the image height
-			for (int x = valX; x < valX+64; x++){ // 640 is image width
+	} else if((valPlaced[1] == false && level == 2) || (claim[1] == false && level == 2)){ // lvl 2
+		
+		if(calc[1] == false){
+			while(valX[1] == lastPressedX || valY[1] == 537){
+				rando = rand() %16 + 3;
+				valX[1] = 64 * rando;
+
+				rando = rand() %8 + 2;
+				valY[1] = (64 * rando) + 25;
+			}
+			calc[1] = true;
+		}
+
+		for (int y = valY[1]; y < valY[1] + 63; y++){ // 320 is the image height
+			for (int x = valX[1]; x < valX[1] + 64; x++){ // 640 is image width
 				colors[x][y] = pack[i];
 				
 				i++;
 			}
 		}
-	}
+
+		valPlaced[1] = true;
+
+	} else if((valPlaced[2] == false && level == 3) || (claim[2] == false && level == 3)){ // lvl 3
+		
+		if(calc[2] == false){
+			while(valX[2] == lastPressedX || valY[2] == 537){
+				rando = rand() %16 + 3;
+				valX[2] = 64 * rando;
+
+				rando = rand() %8 + 2;
+				valY[2] = (64 * rando) + 25;
+			}
+			calc[2] = true;
+		}
+
+		for (int y = valY[2]; y < valY[2] + 63; y++){ // 320 is the image height
+			for (int x = valX[2]; x < valX[2] + 64; x++){ // 640 is image width
+				colors[x][y] = pack[i];
+				
+				i++;
+			}
+		}
+
+		valPlaced[2] = true;
+
+	} else if((valPlaced[3] == false && level == 4) || (claim[3] == false && level == 4)){ // lvl 4
+		
+		if(calc[3] == false){
+			while(valX[3] == lastPressedX || valY[3] == 537){
+				rando = rand() %16 + 3;
+				valX[3] = 64 * rando;
+
+				rando = rand() %8 + 2;
+				valY[3] = (64 * rando) + 25;
+			}
+			calc[3] = true;
+		}
+
+		for (int y = valY[3]; y < valY[3] + 63; y++){ // 320 is the image height
+			for (int x = valX[3]; x < valX[3] + 64; x++){ // 640 is image width
+				colors[x][y] = pack[i];
+				
+				i++;
+			}
+		}
+
+		valPlaced[3] = true;
+	} 
 
 	/* free pixel's allocated memory */
 	free(pixel);
