@@ -459,6 +459,7 @@ void *clockie(void *id){
             }else if(value == 4 || timeUp == true){ // if loser
                 drawOutCome();
                 updateBoard();
+                wait(5000000);
                 bool exit = false;
                 while(exit == false){
                     if(movF != 0){
