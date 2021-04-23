@@ -91,7 +91,10 @@ bool winner = false;
 bool loser = false;
 bool collided = false;
 bool browniePts = false;
-bool speedupClaimed = false;
+bool ticktocClaimed = false;
+bool slowbroClaimed = false;
+bool lifeboiClaimed = false;
+bool athleteClaimed = false;
 double timeLeft = 39.9;	// start with 40 seconds
 int bonusPoints = 0;
 bool valPlaced[4] = {false, false, false, false};
@@ -444,42 +447,63 @@ int drawOutCome(){
 void checkClaim(){
 	if(level == 1){
 		if(valX[0] == lastPressedX && valY[0] == lastPressedY){
-			//bonusPoints = 100;
-			timeLeft += 5.0;
-			if(timeLeft > 39.99){
-				timeLeft = 39.99;
-			}
+			//more time;
 			claim[0] = true;
+
+			if(ticktocClaimed == false){
+				timeLeft += 5.0;
+				if(timeLeft > 39.99){
+					timeLeft = 39.99;
+				}
+			}
+			ticktocClaimed = true;
 		}
 	} else if(level == 2){
 		if(valX[1] == lastPressedX && valY[1] == lastPressedY){
 			//slower time
 			claim[1] = true;
-			if(speedupClaimed == false){
+
+			if(slowbroClaimed == false){
 				speedModifier = speedModifier - 0.2;
 			}
-			speedupClaimed = true;
+			slowbroClaimed = true;
 		}
 	} if(level == 3){
 		if(valX[2] == lastPressedX && valY[2] == lastPressedY){
-			if(lives < 4){
-				lives++;
-			}else{
+			//more lives
+			claim[2] = true;
+
+			if(lifeboiClaimed == false){
+				if(lives == 3){
+					lives = 4;
+				}
+				if(lives == 2){
+					lives = 3;
+				}
+				if(lives == 1){
+					lives = 2;
+				}
+				else{
+					movesTaken -= 10;
+					if(movesTaken < 0){
+						movesTaken = 0;
+					}
+				}
+			}
+			lifeboiClaimed = true;
+		}
+	} if(level == 4){
+		if(valX[3] == lastPressedX && valY[3] == lastPressedY){
+			//more moves
+			claim[3] = true;
+
+			if(athleteClaimed == false){
 				movesTaken -= 10;
 				if(movesTaken < 0){
 					movesTaken = 0;
 				}
 			}
-			claim[2] = true;
-		}
-	} if(level == 4){
-		if(valX[3] == lastPressedX && valY[3] == lastPressedY){
-			//movesLeft = movesLeft + 10;
-			movesTaken -= 10;
-			if(movesTaken < 0){
-				movesTaken = 0;
-			}
-			claim[3] = true;
+			athleteClaimed = true;
 		}
 	} 
 }
