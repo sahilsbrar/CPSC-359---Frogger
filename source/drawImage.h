@@ -32,6 +32,8 @@ int getOption();
 int clear();
 int drawOutCome();
 int drawPause();
+int drawValPack();
+void checkClaim();
 int drawMainMenu();
 int drawGameScreen();
 int drawFrames();
