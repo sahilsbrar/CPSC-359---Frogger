@@ -454,7 +454,7 @@ void checkClaim(){
 	} if(level == 3){
 		if(valX[2] == lastPressedX && valY[2] == lastPressedY){
 			if(lives < 4){
-				lives++;
+				lives = lives + 1;
 			}else{
 				movesLeft = movesLeft + 10;
 			}
