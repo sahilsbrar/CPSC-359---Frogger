@@ -135,15 +135,15 @@ int updateBoard(){
 void frogDied(){
 	// reset level???
 	// DRAW AN 'X' OVER LIFE TAKEN!!!
-	//--lives;
+	--lives;
 	lastPressedX = 640;	// was 1200 (offset by +39)
 	lastPressedY = 537;		// was 538 (offset by -1)
-	// drecrease score
+	// decrease score
 }
 
 
 void resetGame(){
-	lives = 3;
+	lives = 4;
 	level = 1;
 	movesLeft = 99;
 	movesTaken = 0;
@@ -185,6 +185,9 @@ int getOption(){
 void getStatus(){
 	int num = movesLeft - movesTaken;
 	if(num < 0){
+		loser = true;
+	}
+	if(lives < 1){
 		loser = true;
 	}
 }
@@ -869,6 +872,48 @@ int moveFrog(int buttonPressed){
 }
 
 // function to display score on screen
+int drawDeaths(){
+
+	int deaths = 4 - lives;
+
+	if(deaths == 4){		// game over; only display three bonus lives gone
+		deaths = 3;
+	}
+
+	/* initialize + get FBS */
+	framebufferstruct = initFbInfo();
+
+	/* initialize a pixel */
+	Pixel *pixel;
+	pixel = malloc(sizeof(Pixel));
+
+	// TEST: use just the one point cuz why tf not if same file :(
+	short int *deathPtr;
+	//deathPtr=(short int *) lostLife.pixel_data;
+	deathPtr=(short int*) frogDead.pixel_data;
+
+	for(int d = 0; d < deaths; d++){
+		// first digit
+		for (int y = 602; y < 665; y++){					
+			for (int x = 192; x < 256; x++) {
+				//colors[x + d*64][y] = deathPtr[(x-192)+(y-602)*64];
+				if(deathPtr[(x-192)+(y-602)*64] != 0){
+					colors[x + d*64][y] = deathPtr[(x-192)+(y-602)*64];
+				}
+			}
+		}
+	}
+
+	/* free pixel's allocated memory */
+	free(pixel);
+	pixel = NULL;
+	munmap(framebufferstruct.fptr, framebufferstruct.screenSize);
+	
+	return 0;
+}
+
+
+// function to display score on screen
 int drawScore(int location){
 
 	int modH = score / 100;	// hundreds digit
@@ -962,7 +1007,7 @@ int drawScore(int location){
 // function to display moves remaining on screen
 int drawMoves(){
 
-	int num = movesLeft - movesTaken + 1 - movesLeft/99;
+	int num = movesLeft - movesTaken + 1;	// - movesLeft/99;
 	int mod;
 	if(num < 0){
 		mod = 0;

@@ -534,6 +534,7 @@ void *clockie(void *id){
                 drawFrames();
             
                 drawTimer();
+                drawDeaths();
                 
                 updateBoard();
             }
