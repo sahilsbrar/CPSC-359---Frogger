@@ -491,9 +491,20 @@ int drawValPack(){
 		for (int y = valY[0]; y < valY[0] + 63; y++){ // 320 is the image height
 			for (int x = valX[0]; x < valX[0] + 64; x++){ // 640 is image width
 
-				if(colors[x][y] != 8763){
+				//if(colors[x][y] != 8763){
+				//if((pack[i] == -9735) || (pack[i] == 12645)){	// -9735,12645
+					//printf("Clr is: %i.", pack[i]);
+				//	colors[x][y] = 	pack[i];// rip to psychedlic coin ---> (pack[i] + (int)timeLeft*555)%13000;
+				//}
+
+				//if(colors[x][y] != 8763){
+				if(pack[i] == -9735){	// -9735,12645
+					colors[x][y] = pack[i] + 1000*(level-1);
+				}
+				else if(pack[i] == 12645){
 					colors[x][y] = pack[i];
 				}
+
 				i++;
 			}
 		}
@@ -515,7 +526,11 @@ int drawValPack(){
 
 		for (int y = valY[1]; y < valY[1] + 63; y++){ // 320 is the image height
 			for (int x = valX[1]; x < valX[1] + 64; x++){ // 640 is image width
-				if(colors[x][y] != 8763){
+				
+				if(pack[i] == -9735){	// -9735,12645
+					colors[x][y] = pack[i] + 1000*(level-1);
+				}
+				else if(pack[i] == 12645){
 					colors[x][y] = pack[i];
 				}
 				i++;
@@ -539,7 +554,11 @@ int drawValPack(){
 
 		for (int y = valY[2]; y < valY[2] + 63; y++){ // 320 is the image height
 			for (int x = valX[2]; x < valX[2] + 64; x++){ // 640 is image width
-				if(colors[x][y] != 8763){
+				
+				if(pack[i] == -9735){	// -9735,12645
+					colors[x][y] = pack[i] + 1000*(level-1);
+				}
+				else if(pack[i] == 12645){
 					colors[x][y] = pack[i];
 				}
 				i++;
@@ -563,7 +582,11 @@ int drawValPack(){
 
 		for (int y = valY[3]; y < valY[3] + 63; y++){ // 320 is the image height
 			for (int x = valX[3]; x < valX[3] + 64; x++){ // 640 is image width
-				if(colors[x][y] != 8763){
+				
+				if(pack[i] == -9735){	// -9735,12645
+					colors[x][y] = pack[i] + 1000*(level-1);
+				}
+				else if(pack[i] == 12645){
 					colors[x][y] = pack[i];
 				}
 				i++;
