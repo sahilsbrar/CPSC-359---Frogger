@@ -444,7 +444,11 @@ int drawOutCome(){
 void checkClaim(){
 	if(level == 1){
 		if(valX[0] == lastPressedX && valY[0] == lastPressedY){
-			bonusPoints = 100;
+			//bonusPoints = 100;
+			timeLeft += 5.0;
+			if(timeLeft > 39.99){
+				timeLeft = 39.99;
+			}
 			claim[0] = true;
 		}
 	} else if(level == 2){
@@ -459,15 +463,22 @@ void checkClaim(){
 	} if(level == 3){
 		if(valX[2] == lastPressedX && valY[2] == lastPressedY){
 			if(lives < 4){
-				lives = lives + 1;
+				lives++;
 			}else{
-				movesLeft = movesLeft + 10;
+				movesTaken -= 10;
+				if(movesTaken < 0){
+					movesTaken = 0;
+				}
 			}
 			claim[2] = true;
 		}
 	} if(level == 4){
 		if(valX[3] == lastPressedX && valY[3] == lastPressedY){
-			movesLeft = movesLeft + 10;
+			//movesLeft = movesLeft + 10;
+			movesTaken -= 10;
+			if(movesTaken < 0){
+				movesTaken = 0;
+			}
 			claim[3] = true;
 		}
 	} 
