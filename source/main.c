@@ -457,6 +457,16 @@ void *clockie(void *id){
                 }
                 
             }else if(value == 4 || timeUp == true){ // if loser
+                drawGameScreen(0);    // <- still unsure about this one, granted a sometimes move-triggered param
+                drawLanes();
+                drawValPack();
+                drawFrog(1);
+
+                drawFrames();
+            
+                drawTimer();
+                drawDeaths();
+                
                 drawOutCome();
                 updateBoard();
                 wait(1000);
