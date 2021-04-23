@@ -1,5 +1,5 @@
 /*
-CPSC 359 Project (Part 1)
+CPSC 359 Project (Part 2)
 Winter 2021
 
 Lecturer: Dr. Jalal Kawash
@@ -48,7 +48,6 @@ bool quitBool = false;
 bool paused = false;
 bool gameOver = true;
 bool timeUp = false;
-
 
 int movF = 0;    // which direction is the froggie moving in?!?
 
@@ -145,16 +144,14 @@ void wait(int time){
 }
 
 
-// *** print_Message() ***
+// *** passInput() ***
 // Parameter(s): an int, signifying the message to be printed; an int
 //               array, each index i : [1,16] corresponding to current
 //               pressed-state of button i (0 is a dummy, 13-16 unused)
 // Return Value: None
-// Use: prints a message to the user, either calling for a button press,
-//      displaying which button is pressed, or notifying the user that
-//      the program is terminating
+// Use: passes controller input from user to game logic/clockie function below
 
-void print_Message(int message, int buttons[]){
+void passInput(int message, int buttons[]){
     //char labels[17][20] = {"","B","Y","SELECT","START","Joy-pad UP","Joy-pad DOWN","Joy-pad LEFT","Joy-pad RIGHT","A","X","LEFT","RIGHT","","","",""};
                                                                         // Array indices 1 - 12 are the labels for each of the SNES controller buttons
                                                                         
@@ -162,110 +159,39 @@ void print_Message(int message, int buttons[]){
         // printf("Created by Sahil Brar and Paul Serafini\n");
         // printf("\nPlease press a button...\n");
     } else if(message == 1 && buttons[4] != 0){                         // If button has been pressed; "message == 1" for case of future functionality
+
         for(int i = 1; i <= 16; i++){                                   // Goes up to 16 to fit SNES controller protocol, noting 13-16 to be undefined
+
             if(buttons[i] == 0 && i != 4 && i < 13){                    
-                // printf("\nYou have pressed %s\n", labels[i]);           // Prints pressed button message with appropriate label
 
                 movF = 0;
 
                 int value = getOption();
                 if(value == 3){ // if winner
-                    
-                    // gameOver = true;
 
-                    if(i != 0){
+                    if(i != 0){ // pass controller input to go back to home screen
                         movF = i;
-                    //     resetGame();
-                    //     drawMainMenu(5);
-                    //     updateBoard();
-                    //     startBool = false;
-                    //     gameOver = false;
                     }
                     
+                }else if(value == 4){ // if loser
                     
-                }else if(value == 4){
-                    
-                    // gameOver = true;
-                    // updateBoard();
-                    if(i != 0){
-                        movF = i;
-                    //     resetGame();
-                    //     drawMainMenu(5);
-                    //     updateBoard();
-                    //     startBool = false;
-                    //     gameOver = false;
+                    if(i != 0){ // pass contoller input to go back to home screen
+                        movF = i; 
                     }
 
-                }else if(startBool == false){ // on main menu
+                }else if(startBool == false){ // on main menu, passes input for cycling options/selecting options
                     movF = i;
-                    // if(i == 5 || i == 6){
-                    //     drawMainMenu(i); // cycling between main menu option
-                    //     updateBoard();
-                        
-                    // }else if(i == 9){ // user made a selection
-                    //     // startBool = getStart(); //start game
-                    //     // quitBool = getQuit(); // quit
-                        
-                    //     // if(startBool == true){ // start game
-                    //     //     //startTime = time(NULL); // Starting here to avoid repetitive calls
-                    //     //     // ^ startTime might not be needed; instead, refresh "timeLeft" (to 40?)
-                    //     //     // resetGame();
-                    //     //     // drawGameScreen(0);
-                    //     //     // drawLanes();
-                    //     //     // drawFrog(1);
-                    //     //     // drawFrames();
-                    //     //     // updateBoard();
-                    //     // }
-                    // }
-                }else if(paused == true){ // if paused
+
+                }else if(paused == true){ // if on pause menu, passes controller input for cycling/selecting options
                     movF = i;
-                    // if(i == 5 || i == 6){
-                    //     drawPause(i); // cycle between options (UP or DOWN pressed)
-                    //     updateBoard();
-
-                    // } else if(i == 9){ // if user selects option
-                    //     int option = getOption(); // get option
-
-                    //     if(option == 1){ // user quit to main menu
-                    //         paused = false;
-                    //         drawMainMenu(1);
-                    //         updateBoard();
-                    //         startBool = false;
-                    //         //paused = false;
-
-                    //     }else if(option == 2){ // user reset game
-                    //         resetGame();
-                    //         //startTime = time(NULL); // this should maybe be put in with resetGame(); see above
-                    //         //timeLeft = 40; // reset clock for a new round (int)
-                    //         timeLeft = 39.99; // reset clock for a new round (dbl)
-                    //         //drawGameScreen(0);
-                    //         //drawLanes();
-                    //         //updateLaneOffsets();
-                    //         //drawFrog(1);
-                    //         //drawFrames();
-                    //         paused = false;
-                    //         updateBoard();
-                    //         //paused = false;
-                    //     }
-                    // }
-                }else if(i >= 5 && i <= 8){
                     
-                    // see movF reference in clock thread; may not be the right approach later on 
-                    
+                }else if(i >= 5 && i <= 8){ // pass controls of frog movement
                     //move the frog
-                    movF = i;   // testing thread drawing
-                    //drawGameScreen(i);  // here or called by clock (or FPS draw)?
-                    //drawLanes();
-                    //updateLaneOffsets();
-                    //moveFrog(i);
-                    //drawFrames();
+                    movF = i;  
                 } 
             }
         }
-        // printf("\nPlease press a button...\n");                      // Here allows successive printing of buttons pressed on same physical "frame"
-    } else{                                                             // If start button has been pressed; not explicit, other codes may be required
-        // printf("\nProgram is terminating...\n");
-    }
+    } 
 }
 
 
@@ -286,7 +212,7 @@ void read_SNES(unsigned int *gpio){
     init_GPIO(LAT, 001, gpio);                                          // This and immediately above sets LAT to be output
     init_GPIO(DAT, 000, gpio);                                          // This sets DAT to be input
     
-    print_Message(0, buttons);                                          // Prints start message; used here (instead of in main function) to reduce cost
+    passInput(0, buttons);                                          // Prints start message; used here (instead of in main function) to reduce cost
     
     
     /* Start Clock Thread Here */
@@ -297,97 +223,85 @@ void read_SNES(unsigned int *gpio){
     //bool status = false;                                              // For future functionality (dealing with START menu, game states, and whatnot)
     bool change = false;                                                // Marks if change has occured between sequential presses
     int i = 1;
-    //while(!status){                                                   // For future functionality (dealing with START menu, game states, and whatnot)
-        while(!quitBool){                                            // Next 4 lines and for-loop derived from "Video - RPi 2 of 3" slide 20, on d2l
-            write_Clock(gpio);
-            write_Latch(gpio);
-            wait(12);
-            clear_Latch(gpio);
+    while(!quitBool){                                            // Next 4 lines and for-loop derived from "Video - RPi 2 of 3" slide 20, on d2l
+        write_Clock(gpio);
+        write_Latch(gpio);
+        wait(12);
+        clear_Latch(gpio);
 
-            for(i = 1; i <= 16; i++){                                   // Branches through all 16 buttons (recall index 0 of buttons array is a dummy)
-                buttons[i] = 1;
-                wait(6);
-                clear_Clock(gpio);
-                wait(6);
-                int button = read_Data(gpio);
-                if(button == 0){
-                    write_Clock(gpio);
-                    if(pressed[i] == 1){                                // If this button was just previously not pressed 
-                        buttons[i] = 0;                                 // Marks that button i was pressed
-                        change = true;                                  // A new button has been pressed
-                    }
-                    //else if(held[i]) = 1;                             // Pseudo; similar may be able to deal with button holding in the future
-                    pressed[i] = 0;                                     // Marks that button i was just pressed (for reference next physical "frame")
-                }
-                else{
-                    pressed[i] = 1;                                     // Marks that button i was not just pressed (for reference next physical "frame")
-                }
-                
+        for(i = 1; i <= 16; i++){                                   // Branches through all 16 buttons (recall index 0 of buttons array is a dummy)
+            buttons[i] = 1;
+            wait(6);
+            clear_Clock(gpio);
+            wait(6);
+            int button = read_Data(gpio);
+            if(button == 0){
                 write_Clock(gpio);
-                wait(500);
+                if(pressed[i] == 1){                                // If this button was just previously not pressed 
+                    buttons[i] = 0;                                 // Marks that button i was pressed
+                    change = true;                                  // A new button has been pressed
+                }
+                //else if(held[i]) = 1;                             // Pseudo; similar may be able to deal with button holding in the future
+                pressed[i] = 0;                                     // Marks that button i was just pressed (for reference next physical "frame")
             }
-            wait(500);                                                  // Waits; used to curb error due too fast of a cycle speed
-        
-            if(change == true){                                         // At least one button has been pressed
-                print_Message(1, buttons);                              // 1 means print status according to which buttons have been pressed
-                change = false;
+            else{
+                pressed[i] = 1;                                     // Marks that button i was not just pressed (for reference next physical "frame")
             }
             
-            if(buttons[4] == 0){                                        // START button has been pressed
-                
-                // wait(500);
-                
-                if(startBool == true){ // make sure not on main menu
-                    int check = getOption();
-                    if(check == 3){
-                        // drawMainMenu(5);
-                        movF = 5;
-                        
-                    }else if(check == 4){
-                        // drawMainMenu(5);
-                        movF = 5;
-                    }else if(paused == false){ // if not paused, pause
-                        paused = true;    
-                        // drawPause(5);
-                        // updateBoard();
+            write_Clock(gpio);
+            wait(500);
+        }
+        wait(500);                                                  // Waits; used to curb error due too fast of a cycle speed
+    
+        if(change == true){                                         // At least one button has been pressed
+            passInput(1, buttons);                              // 1 means print status according to which buttons have been pressed
+            change = false;
+        }
+        
+        if(buttons[4] == 0){                                        // START button has been pressed
+            
+            // wait(500);
+            
+            if(startBool == true){ // make sure not on main menu (so pause menu doesnt open)
+                int check = getOption();
+                if(check == 3){
+                    //if on win screen and start pressed, pass input to move to main menu
+                    movF = 5;
+                    
+                }else if(check == 4){
+                    // if on lose screen and start pressed, pass input to move to main menu
+                    movF = 5;
 
-                    }else{ // already paused and hit START, resumes game
-                        // drawGameScreen(0);
-                        // drawFrog(1);
-                        // drawFrames();
-                        // updateBoard();
-                        movF = 0;   // prevents movement in pause menu; North orientation upon resuming
-                        paused = false;
-                    }
+                }else if(paused == false){ // if not paused, pause
+                    paused = true;    
+
+                }else{ // already paused and hit START, resumes game
+                    movF = 0;   // prevents movement in pause menu; North orientation upon resuming
+                    paused = false; // unpause
                 }
             }
         }
-        gameOver = true;
-        
-        //I THINK THIS IS THE PLACE TO PRINT OFF WIN OR LOSE (BASED ON BOOL!)
-        
-        pthread_join(tid100,NULL);     // Join the clock thread!
-        
-        printf("Time left is: %f", timeLeft);
-        
-        //clear();
-        //updateBoard();
-    //status = false;                                                   // For future functionality (dealing with START menu, game states, and whatnot)
-    //}                                                                 // For future functionality (dealing with START menu, game states, and whatnot)
+    }
+    gameOver = true; // game is over
+    
+    pthread_join(tid100,NULL);     // Join the clock thread!
+    
+    // printf("Time left is: %f", timeLeft);  // for testing
 }
 
 
 void *clockie(void *id){
     
-    while(quitBool == false){
+    while(quitBool == false){ // while game not quit
 
-        while(startBool == false){
+        while(startBool == false){ // while game not started (on main menu)
 
-            if(movF == 5 || movF == 6){
+            if(movF == 5 || movF == 6){ // pressing up or down
                 drawMainMenu(movF); // cycling between main menu option
                 updateBoard();
                 
-            }else if(movF == 9){ // user made a selection
+            }else if(movF == 9){ // user made a selection (A BUTTON)
+
                 startBool = getStart(); //start game
                 quitBool = getQuit(); // quit
                 
@@ -402,9 +316,8 @@ void *clockie(void *id){
                     drawFrog(1);
                     drawFrames();
                     updateBoard();
-                }else if(quitBool == true){
+                }else if(quitBool == true){ // quit game
                     clear();
-                    // updateBoard();
                     gameOver = true;
                     startBool = true;
                     timeLeft = 0;
@@ -412,41 +325,28 @@ void *clockie(void *id){
             }
         }
         
-        timeUp = false;
-        resetGame();
-        while(gameOver == false){   // calls are eventually redundant, but keeping for now with time testing
-            
-            // THIS WORKS IF ONLY WORRIED ABOUT SECOND INCREMENTS
-            //sleep(1);   // this is a bs way to do it, but works so close to accurately that haters can hella bite me for the purposes of this game >:(
-            //--timeLeft;
+        timeUp = false; // time is not up
+        resetGame(); // before starting game
 
-            //while(paused == true){
-            //   ;
-            //
+        while(gameOver == false){   // while game isnt over
 
-            // BELOW LINES ARE FOR KEEPING TRACK OF ~STANDARDIZED INCREMENTS IN MICROSECONDS
-            //wait(100000);   // wait 100k microseconds; roughly 10fps!!! <--------
-            //timeLeft -= 0.1;   // COMPARE THIS VALUE TO ABOVE MICROSECONDS
             wait(50000);   // wait 50k microseconds; roughly 20fps!!! <--------
             timeLeft -= 0.05;   // COMPARE THIS VALUE TO ABOVE MICROSECONDS
             // ^ NOTE THAT YOU *MUST* TAKE speedModifier INTO CONSIDERATION
             //   WHEN ALTERING THESE VALUES AND ADJUST ACCORDINGLY!!!
-
-            //checkCollision();   // TEST FOR COORDINATE CHECKING!!!
             
             // Value Pack #1
             if(timeLeft < 12){
                 speedModifier += 0.008;
             }
 
-
-            int value = getOption();
+            int value = getOption(); // returns which bool flag is positive
             if(value == 3){ // if winner
-                drawOutCome();
+                drawOutCome();  // draw win screen
                 updateBoard();
                 bool exit = false;
                 while(exit == false){
-                    if(movF != 0){
+                    if(movF != 0){  // wait until user presses a button and go to main menu
                         drawMainMenu(5);
                         updateBoard();
                         startBool = false;
@@ -456,8 +356,8 @@ void *clockie(void *id){
                     }
                 }
                 
-            }else if(value == 4 || timeUp == true){ // if loser
-                drawGameScreen(0);    // <- still unsure about this one, granted a sometimes move-triggered param
+            }else if(value == 4 || timeUp == true){ // if lost game
+                drawGameScreen(0);   // update screen for all parts and show lose screen
                 drawLanes();
                 drawValPack();
                 drawFrog(1);
@@ -472,7 +372,7 @@ void *clockie(void *id){
                 wait(1000);
                 bool exit = false;
                 while(exit == false){
-                    if(movF != 0){
+                    if(movF != 0){  //wait until user presses a button and go to main menu
                         drawMainMenu(5);
                         updateBoard();
                         startBool = false;
@@ -481,26 +381,24 @@ void *clockie(void *id){
                         exit = true;
                     }
                 }
-            } else if (paused == true){
+            } else if (paused == true){ // if paused
 
-                while(paused == true){ // pause timer while on pause menu <- WORKS
+                while(paused == true){ // pause timer while on pause menu
 
                     if(movF == 5 || movF == 6){
                         drawPause(movF); // cycle between options (UP or DOWN pressed)
                         updateBoard();
-                        //wait(5000000);
 
                     } else if(movF == 9){ // if user selects option
-                        int option = getOption(); // get option
+                        int option = getOption(); // get option selected by user
 
                         if(option == 1){ // user quit to main menu
-                            drawMainMenu(5);
+                            drawMainMenu(5);    //draw main menu
                             updateBoard();
                             startBool = false;
                             gameOver = true;
                             timeLeft = 0;
                             paused = false;
-                            
 
                         }else if(option == 2){ // user reset game
                             resetGame();
@@ -513,18 +411,17 @@ void *clockie(void *id){
                         updateBoard();
                     }
                 }
-            } else{
+            } else{ // game controls passed for frog movement
 
-                if(movF != 0){
-                    //drawGameScreen(0);    // OLD; was unsure about this one, granted a sometimes move-triggered param
+                if(movF != 0){ // if moved the frog, draw the move and update everything on screen
                     drawGameScreen(movF);
                     drawLanes();
                     updateLaneOffsets();
                     drawValPack();
                     moveFrog(movF);
                     movF = 0;
-                } else {
-                    drawGameScreen(0);    // <- still unsure about this one, granted a sometimes move-triggered param
+                } else {    // otherwise redraw everything and don't move the frog
+                    drawGameScreen(0);
                     drawLanes();
                     updateLaneOffsets();
                     drawValPack();
@@ -548,39 +445,28 @@ void *clockie(void *id){
                 updateBoard();
             }
             
-
-            // BELOW SEEMS HELLA DELAYED; MAYBE MAKE 1Sec??
+            // to sync with display timer
             if(timeLeft < 3){
                 timeUp = true;
             }
-            checkClaim();
-            getStatus();
 
-            // BELOW FEW LINES ARE LARGELY FOR TESTING
-            //if(timeLeft % 5 == 0){
-            //    printf("You have %i seconds left!",timeLeft);
-            //}
+            checkClaim(); // check if any value packs have been used
+            getStatus(); // check for lose conditions
         }
-        if(quitBool == false){
+
+        if(quitBool == false){ // if havent quit the game, display main menu
             resetGame();
             drawMainMenu(5);
             updateBoard();
             startBool = false;
             movF = 0;
-            //gameOver = true;    // either game is already done or timeLeft == 0
-            //printf("Game Over!");
         }
     }
-    //clear();
-    //updateBoard();
-
-    pthread_exit(0);
+    pthread_exit(0); // exit thread
 }
 
 
-
 /*  Main Function  */
-
 
 // *** main() ***
 // Parameter(s): None
@@ -589,21 +475,13 @@ void *clockie(void *id){
 
 int main(){
     resetGame();
-    drawMainMenu(5);
+    drawMainMenu(5); // draw main menu
     
     updateBoard();
     
     unsigned int *gpio = getGPIOPtr();                                  // Obtains the base GPIO address
-    
-    /* IMMEDIATELY BELOW IS FOR POTENTIAL LATER FUNCTIONALITY
-    int buttons[17] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};              // An array representing buttons (first index is a dummy to make indexing easy)
-    print_Message(0, buttons);                                          // Prints start message; may be more appropriate to call here than in read_SNES
-    */
 
     read_SNES(gpio);                                                    // Calls controller reading subroutine
-
-    //clear();
-    //updateBoard();
 
     return 0;
 }
