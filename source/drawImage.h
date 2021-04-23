@@ -7,12 +7,22 @@ typedef struct {
 	int x, y;
 } Pixel;
 
+typedef struct {
+    int lives;
+    int level;
+    int score;
+    int movesLeft;
+	int movesTaken;
+	int lastPressedX;
+	int lastPressedY;
+} gs;		// game state
+
 //int timeLeft;
 double timeLeft;
 
-int lives;
-int level;
-int score;
+//int lives;
+//int level;
+//int score;
 int laneOffsets[5];
 double speedModifier;
 int laneOccupancy[155];
