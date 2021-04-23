@@ -398,6 +398,7 @@ void *clockie(void *id){
                     resetGame();
                     drawGameScreen(0);
                     drawLanes();
+                    drawValPack();
                     drawFrog(1);
                     drawFrames();
                     updateBoard();
@@ -457,7 +458,7 @@ void *clockie(void *id){
                     }
                 }
                 
-            }else if(value == 4 || timeUp == true){
+            }else if(value == 4 || timeUp == true){ // if loser
                 drawOutCome();
                 updateBoard();
                 bool exit = false;
@@ -510,12 +511,14 @@ void *clockie(void *id){
                     drawGameScreen(movF);
                     drawLanes();
                     updateLaneOffsets();
+                    drawValPack();
                     moveFrog(movF);
                     movF = 0;
                 } else {
                     drawGameScreen(0);    // <- still unsure about this one, granted a sometimes move-triggered param
                     drawLanes();
                     updateLaneOffsets();
+                    drawValPack();
                     drawFrog(1);    // could easily add more options to make this work for all 4 cardinal directions
                 }
                 
@@ -529,7 +532,7 @@ void *clockie(void *id){
 
                 drawScore(1);
                 drawFrames();
-                drawValPack();
+            
                 drawTimer();
                 
                 updateBoard();
@@ -540,7 +543,7 @@ void *clockie(void *id){
             if(timeLeft < 3){
                 timeUp = true;
             }
-
+            checkClaim();
             getStatus();
 
             // BELOW FEW LINES ARE LARGELY FOR TESTING
