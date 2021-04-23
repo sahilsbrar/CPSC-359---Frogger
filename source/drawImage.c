@@ -68,6 +68,7 @@
 
 struct fbs framebufferstruct;
 
+// Obstacle Control Variables
 int laneOffsets[5] = {25,35,15,20,10};				// pixels offset
 int laneIndices[5] = {0,30,60,90,120};
 double laneSpeeds[5] = {8.0,-10.0,12.0,-8.0,9.0};
@@ -75,14 +76,28 @@ double speedModifier = 1.7;
 
 int laneOccupancy[155] = {0,1,1,1,0,0,0,0,1,1,0,0,0,1,0,1,0,0,0,1,1,0,0,0,0,1,1,0,1,0,0,0,1,1,1,1,0,0,0,1,1,0,0,0,1,1,0,0,1,1,1,1,0,0,0,0,1,1,0,1,1,0,0,0,1,1,0,0,0,0,1,0,1,0,0,1,0,0,0,1,1,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0,1,1,0,1,1,0,0,1,1,0,0,0,0,0,0,1,0,1,1,0,1,1,1,0,0,0,0,0,0,1,1,0,0,0,1,1,0,0,0,0};
 
+struct gs
+{
+    int lives;
+    int level;
+    int score;
+    int movesLeft;
+	int movesTaken;
+	int lastPressedX;
+	int lastPressedY;
+
+};
+
+gs gameState;
+
 // Variables -> possible struct here?
-int lives = 4;	// player starts with 3 bonus lives! (as displayed on the game screen)
-int level = 1;
-int score = 250; // MAX score, loses points as game continues (increases with value packs)
-int movesLeft = 99;
-int movesTaken = 0;
-int lastPressedX = 640;	// was 1200 (offset by +39)
-int lastPressedY = 537;	// was 538 (offset by -3)
+lives = 4;	// player starts with 3 bonus lives! (as displayed on the game screen)
+level = 1;
+score = 250; // MAX score, loses points as game continues (increases with value packs)
+movesLeft = 99;
+movesTaken = 0;
+lastPressedX = 640;	// was 1200 (offset by +39)
+lastPressedY = 537;	// was 538 (offset by -3)
 bool startGame = false;
 bool quitGame = false;
 bool goMain = false;
@@ -138,21 +153,21 @@ int updateBoard(){
 void frogDied(){
 	// reset level???
 	// DRAW AN 'X' OVER LIFE TAKEN!!!
-	--lives;
-	lastPressedX = 640;	// was 1200 (offset by +39)
-	lastPressedY = 537;		// was 538 (offset by -1)
+	--gameState.lives;
+	gameState.lastPressedX = 640;	// was 1200 (offset by +39)
+	gameState.lastPressedY = 537;		// was 538 (offset by -1)
 	// decrease score
 }
 
 
 void resetGame(){
-	lives = 4;
-	level = 1;
-	movesLeft = 99;
-	movesTaken = 0;
-	score = 250;
-	lastPressedX = 640;	// was 1200 (offset by +39)
-	lastPressedY = 537;		// was 538 (offset by -1)
+	gameState.lives = 4;
+	gameState.level = 1;
+	gameState.movesLeft = 99;
+	gameState.movesTaken = 0;
+	gameState.score = 250;
+	gameState.lastPressedX = 640;	// was 1200 (offset by +39)
+	gameState.lastPressedY = 537;		// was 538 (offset by -1)
 	startGame = false;
 	quitGame = false;
 	goMain = false;
@@ -187,11 +202,11 @@ int getOption(){
 }
 
 void getStatus(){
-	int num = movesLeft - movesTaken;
+	int num = gameState.movesLeft - gameState.movesTaken;
 	if(num < 1){
 		loser = true;
 	}
-	if(lives < 1){
+	if(gameState.lives < 1){
 		loser = true;
 	}
 }
@@ -287,9 +302,9 @@ int drawGameScreen(int buttonPressed){
 	/* initialize + get FBS */
 	framebufferstruct = initFbInfo();
 	
-	if(lastPressedY <= 155 && buttonPressed == 5 && level != 4){ // checking if moving up to next level
-		level = level + 1;
-		lastPressedY = 601;
+	if(gameState.lastPressedY <= 155 && buttonPressed == 5 && gameState.level != 4){ // checking if moving up to next level
+		gameState.level = gameState.level + 1;
+		gameState.lastPressedY = 601;
 	}
 
 	/* initialize a pixel */
@@ -299,13 +314,13 @@ int drawGameScreen(int buttonPressed){
 
 	short int *background;
 
-	if(level == 1){
+	if(gameState.level == 1){
 		background=(short int *) lvl_one.pixel_data;
 
-	} else if(level == 2){
+	} else if(gameState.level == 2){
 		background=(short int *) lvl_two.pixel_data;
 
-	} else if(level == 3){
+	} else if(gameState.level == 3){
 		background=(short int *) lvl_three.pixel_data;
 
 	}else{
@@ -445,8 +460,8 @@ int drawOutCome(){
 
 // checks if specific levels value pack has been claimed
 void checkClaim(){
-	if(level == 1){
-		if(valX[0] == lastPressedX && valY[0] == lastPressedY){
+	if(gameState.level == 1){
+		if(valX[0] == gameState.lastPressedX && valY[0] == gameState.lastPressedY){
 			//more time;
 			claim[0] = true;
 
@@ -458,8 +473,8 @@ void checkClaim(){
 			}
 			ticktocClaimed = true;
 		}
-	} else if(level == 2){
-		if(valX[1] == lastPressedX && valY[1] == lastPressedY){
+	} else if(gameState.level == 2){
+		if(valX[1] == gameState.lastPressedX && valY[1] == gameState.lastPressedY){
 			//slower time
 			claim[1] = true;
 
@@ -468,39 +483,39 @@ void checkClaim(){
 			}
 			slowbroClaimed = true;
 		}
-	} if(level == 3){
-		if(valX[2] == lastPressedX && valY[2] == lastPressedY){
+	} if(gameState.level == 3){
+		if(valX[2] == gameState.lastPressedX && valY[2] == gameState.lastPressedY){
 			//more lives
 			claim[2] = true;
 
 			if(lifeboiClaimed == false){
-				if(lives == 3){
-					lives = 4;
+				if(gameState.lives == 3){
+					gameState.lives = 4;
 				}
-				if(lives == 2){
-					lives = 3;
+				if(gameState.lives == 2){
+					gameState.lives = 3;
 				}
-				if(lives == 1){
-					lives = 2;
+				if(gameState.lives == 1){
+					gameState.lives = 2;
 				}
 				else{
-					movesTaken -= 10;
-					if(movesTaken < 0){
-						movesTaken = 0;
+					gameState.movesTaken -= 10;
+					if(gameState.movesTaken < 0){
+						gameState.movesTaken = 0;
 					}
 				}
 			}
 			lifeboiClaimed = true;
 		}
-	} if(level == 4){
-		if(valX[3] == lastPressedX && valY[3] == lastPressedY){
+	} if(gameState.level == 4){
+		if(valX[3] == gameState.lastPressedX && valY[3] == gameState.lastPressedY){
 			//more moves
 			claim[3] = true;
 
 			if(athleteClaimed == false){
-				movesTaken -= 10;
-				if(movesTaken < 0){
-					movesTaken = 0;
+				gameState.movesTaken -= 10;
+				if(gameState.movesTaken < 0){
+					gameState.movesTaken = 0;
 				}
 			}
 			athleteClaimed = true;
@@ -524,7 +539,7 @@ int drawValPack(){
 	int rando;
 
 	// printf("/nHERE %d/n", colors[0][0] = pack[i]);
-	if((valPlaced[0] == false && level == 1) || (claim[0] == false && level == 1)){ // lvl 1
+	if((valPlaced[0] == false && gameState.level == 1) || (claim[0] == false && gameState.level == 1)){ // lvl 1
 		
 		if(calc[0] == false){
 
@@ -548,7 +563,7 @@ int drawValPack(){
 
 				//if(colors[x][y] != 8763){
 				if(pack[i] == -9735){	// -9735,12645
-					colors[x][y] = pack[i] + 1000*(level-1);
+					colors[x][y] = pack[i] + 1000*(gameState.level-1);
 				}
 				else if(pack[i] == 12645){
 					colors[x][y] = pack[i];
@@ -560,7 +575,7 @@ int drawValPack(){
 
 		valPlaced[0] = true;
 
-	} else if((valPlaced[1] == false && level == 2) || (claim[1] == false && level == 2)){ // lvl 2
+	} else if((valPlaced[1] == false && gameState.level == 2) || (claim[1] == false && gameState.level == 2)){ // lvl 2
 		
 		if(calc[1] == false){
 			
@@ -577,7 +592,7 @@ int drawValPack(){
 			for (int x = valX[1]; x < valX[1] + 64; x++){ // 640 is image width
 				
 				if(pack[i] == -9735){	// -9735,12645
-					colors[x][y] = pack[i] + 1000*(level-1);
+					colors[x][y] = pack[i] + 1000*(gameState.level-1);
 				}
 				else if(pack[i] == 12645){
 					colors[x][y] = pack[i];
@@ -588,7 +603,7 @@ int drawValPack(){
 
 		valPlaced[1] = true;
 
-	} else if((valPlaced[2] == false && level == 3) || (claim[2] == false && level == 3)){ // lvl 3
+	} else if((valPlaced[2] == false && gameState.level == 3) || (claim[2] == false && gameState.level == 3)){ // lvl 3
 		
 		if(calc[2] == false){
 			
@@ -605,7 +620,7 @@ int drawValPack(){
 			for (int x = valX[2]; x < valX[2] + 64; x++){ // 640 is image width
 				
 				if(pack[i] == -9735){	// -9735,12645
-					colors[x][y] = pack[i] + 1000*(level-1);
+					colors[x][y] = pack[i] + 1000*(gameState.level-1);
 				}
 				else if(pack[i] == 12645){
 					colors[x][y] = pack[i];
@@ -616,7 +631,7 @@ int drawValPack(){
 
 		valPlaced[2] = true;
 
-	} else if((valPlaced[3] == false && level == 4) || (claim[3] == false && level == 4)){ // lvl 4
+	} else if((valPlaced[3] == false && gameState.level == 4) || (claim[3] == false && gameState.level == 4)){ // lvl 4
 		
 		if(calc[3] == false){
 			
@@ -633,7 +648,7 @@ int drawValPack(){
 			for (int x = valX[3]; x < valX[3] + 64; x++){ // 640 is image width
 				
 				if(pack[i] == -9735){	// -9735,12645
-					colors[x][y] = pack[i] + 1000*(level-1);
+					colors[x][y] = pack[i] + 1000*(gameState.level-1);
 				}
 				else if(pack[i] == 12645){
 					colors[x][y] = pack[i];
@@ -699,7 +714,7 @@ int drawPause(int buttonPressed){
 // Draws frog in initial position, or when coming down a level
 int drawFrog(int direction){
 
-	if(lastPressedY < 100){	// is at the end!
+	if(gameState.lastPressedY < 100){	// is at the end!
 		return 0;	// don't print dat froggo
 	}
 
@@ -719,8 +734,8 @@ int drawFrog(int direction){
 	pixel = malloc(sizeof(Pixel));
 	int i=0;
 
-	for (int y = lastPressedY; y < lastPressedY + 63; y++){ // 64 is the image height
-		for (int x = lastPressedX; x < lastPressedX+64; x++){ // 64 is image width
+	for (int y = gameState.lastPressedY; y < gameState.lastPressedY + 63; y++){ // 64 is the image height
+		for (int x = gameState.lastPressedX; x < gameState.lastPressedX+64; x++){ // 64 is image width
 			//colors[x][y] = frogPtr[i+64];
 			
 			//pixel->color = frogPtr[i+64];
@@ -757,11 +772,11 @@ int moveFrog(int buttonPressed){
 	int i=0;
 
 	if(buttonPressed == 5){ // pressed UP
-		if(lastPressedY <= 155 && level == 4){	// Restricting level 4 top movements through gate only (feature)
-			if(lastPressedX == 576 || lastPressedX == 640){
-				lastPressedY = lastPressedY - 64;
-				movesTaken++;
-				int move = movesLeft - movesTaken;
+		if(gameState.lastPressedY <= 155 && gameState.level == 4){	// Restricting level 4 top movements through gate only (feature)
+			if(gameState.lastPressedX == 576 || gameState.lastPressedX == 640){
+				gameState.lastPressedY = gameState.lastPressedY - 64;
+				gameState.movesTaken++;
+				int move = gameState.movesLeft - gameState.movesTaken;
 
 				if(move >= 0){ //winner if moves are left
 					winner = true;
@@ -777,20 +792,20 @@ int moveFrog(int buttonPressed){
 					drawOutCome();
 					return 0;
 				}
-				movesTaken++;	// increment moves taken
+				gameState.movesTaken++;	// increment moves taken
 				
 			}else{
-				lastPressedY = lastPressedY; // cannot move due to bounds
+				gameState.lastPressedY = gameState.lastPressedY; // cannot move due to bounds
 			}
 		}else{ // regular up movements
-			lastPressedY = lastPressedY - 64;
-			movesTaken++;	// increment moves taken
+			gameState.lastPressedY = gameState.lastPressedY - 64;
+			gameState.movesTaken++;	// increment moves taken
 		}
 
 		short int *frogPtr=(short int *) frogFWD.pixel_data; // set forward movement image
 		
-		for (int y = lastPressedY; y < lastPressedY+63; y++){ //64 is the image height
-			for (int x = lastPressedX; x < lastPressedX+64; x++){ // 64 is image width
+		for (int y = gameState.lastPressedY; y < gameState.lastPressedY+63; y++){ //64 is the image height
+			for (int x = gameState.lastPressedX; x < gameState.lastPressedX+64; x++){ // 64 is image width
 				//colors[x][y] = frogPtr[i+64];
 				
 				//pixel->color = frogPtr[i+64]; 
@@ -812,22 +827,22 @@ int moveFrog(int buttonPressed){
 
 		short int *frogPtr=(short int *) frogBWD.pixel_data; // set downward movement image
 		
-		if(lastPressedY == 537 && level != 1){ // If the user is moving back a level
-			level--; // go back a level
-			lastPressedY = 153; // set appropriate location
-			movesTaken++; // increment moves taken
+		if(gameState.lastPressedY == 537 && gameState.level != 1){ // If the user is moving back a level
+			gameState.level--; // go back a level
+			gameState.lastPressedY = 153; // set appropriate location
+			gameState.movesTaken++; // increment moves taken
 			drawGameScreen(6); // redraw game screen based on moving back a level
 			drawLanes();
 			drawFrames(); // draw frames for obstacles overflow
 			drawFrog(2); // redraw frog facing down
 
-		} else if(lastPressedY != 537){	// checking if user is moving down (as long as not on lvl1 and on bottom row)
+		} else if(gameState.lastPressedY != 537){	// checking if user is moving down (as long as not on lvl1 and on bottom row)
 
-			lastPressedY = lastPressedY + 64; // move down
-			movesTaken++; // increment moves taken
+			gameState.lastPressedY = gameState.lastPressedY + 64; // move down
+			gameState.movesTaken++; // increment moves taken
 
-			for (int y = lastPressedY; y < lastPressedY+63; y++){ //64 is the image height
-				for (int x = lastPressedX; x < lastPressedX+64; x++){ // 64 is image width	
+			for (int y = gameState.lastPressedY; y < gameState.lastPressedY+63; y++){ //64 is the image height
+				for (int x = gameState.lastPressedX; x < gameState.lastPressedX+64; x++){ // 64 is image width	
 					//colors[x][y] = frogPtr[i+64];
 					//pixel->color = frogPtr[i+64]; 
 					//pixel->x = x;
@@ -843,8 +858,8 @@ int moveFrog(int buttonPressed){
 			}
 
 		} else{ // keep user in same spot, dont increment moves taken
-			for (int y = lastPressedY; y < lastPressedY+63; y++){ // 64 is the image height
-				for (int x = lastPressedX; x < lastPressedX+64; x++){ // 64 is image width
+			for (int y = gameState.lastPressedY; y < gameState.lastPressedY+63; y++){ // 64 is the image height
+				for (int x = gameState.lastPressedX; x < gameState.lastPressedX+64; x++){ // 64 is image width
 						//colors[x][y] = frogPtr[i+64];
 						
 						//pixel->color = frogPtr[i+64]; 
@@ -866,20 +881,20 @@ int moveFrog(int buttonPressed){
 		short int *frogPtr=(short int *) frogLWD.pixel_data; // set image to let movement
 
 		// checking if user is trying to move on gate (level 4) from left, or off gate (feature to make win exit)
-		if(lastPressedY <= 155 && (lastPressedX == 704 || lastPressedX == 576)){ 
+		if(gameState.lastPressedY <= 155 && (gameState.lastPressedX == 704 || gameState.lastPressedX == 576)){ 
 
-			if(level != 4){ //if not on level 4, make the move like normal
-				lastPressedX = lastPressedX - 64; // move frog position
-				movesTaken++; // increment moves taken
+			if(gameState.level != 4){ //if not on level 4, make the move like normal
+				gameState.lastPressedX = gameState.lastPressedX - 64; // move frog position
+				gameState.movesTaken++; // increment moves taken
 			}
 
-		} else if(lastPressedX != 192){	// make sure player doesnt move left out of bounds
-			lastPressedX = lastPressedX - 64; // move player 
-			movesTaken++; // increment moves taken
+		} else if(gameState.lastPressedX != 192){	// make sure player doesnt move left out of bounds
+			gameState.lastPressedX = gameState.lastPressedX - 64; // move player 
+			gameState.movesTaken++; // increment moves taken
 		}
 
-		for (int y = lastPressedY; y < lastPressedY+63; y++){ // 64 is the image height
-			for (int x = lastPressedX; x < lastPressedX+64; x++){ // 64 is image width
+		for (int y = gameState.lastPressedY; y < gameState.lastPressedY+63; y++){ // 64 is the image height
+			for (int x = gameState.lastPressedX; x < gameState.lastPressedX+64; x++){ // 64 is image width
 					//colors[x][y] = frogPtr[i+64];
 					
 					//pixel->color = frogPtr[i+64]; 
@@ -900,18 +915,18 @@ int moveFrog(int buttonPressed){
 		short int *frogPtr=(short int *) frogRWD.pixel_data; // use right moving image
 		
 		// checking if user is trying to move onto/off draw bridge (lvl4) from the right (feature for win condition)
-		if(lastPressedY <= 155 && (lastPressedX == 512 || lastPressedX == 640)){
-			if(level != 4){ // if not on level 4
-				lastPressedX = lastPressedX + 64; // move like normal
-				movesTaken++; // increment moves taken
+		if(gameState.lastPressedY <= 155 && (gameState.lastPressedX == 512 || gameState.lastPressedX == 640)){
+			if(gameState.level != 4){ // if not on level 4
+				gameState.lastPressedX = gameState.lastPressedX + 64; // move like normal
+				gameState.movesTaken++; // increment moves taken
 			}
-		} else if(lastPressedX != 1024){ // otherwise check and prevent user from moving out of bounds (right side)
-			lastPressedX = lastPressedX + 64; // move frog
-			movesTaken++; // increment moves taken
+		} else if(gameState.lastPressedX != 1024){ // otherwise check and prevent user from moving out of bounds (right side)
+			gameState.lastPressedX = gameState.lastPressedX + 64; // move frog
+			gameState.movesTaken++; // increment moves taken
 		}
 
-		for (int y = lastPressedY; y < lastPressedY+63; y++){ //64 is the image height
-			for (int x = lastPressedX; x < lastPressedX+64; x++){ // 64 is image width
+		for (int y = gameState.lastPressedY; y < gameState.lastPressedY+63; y++){ //64 is the image height
+			for (int x = gameState.lastPressedX; x < gameState.lastPressedX+64; x++){ // 64 is image width
 					//colors[x][y] = frogPtr[i+64];
 					
 					//pixel->color = frogPtr[i+64]; 
@@ -940,7 +955,7 @@ int moveFrog(int buttonPressed){
 // function to display score on screen
 int drawDeaths(){
 
-	int deaths = 4 - lives;
+	int deaths = 4 - gameState.lives;
 
 	if(deaths == 4){		// game over; only display three bonus lives gone
 		deaths = 3;
@@ -982,11 +997,11 @@ int drawDeaths(){
 // function to display score on screen
 int drawScore(int location){
 	int t = (int) timeLeft;
-	score = (t + movesLeft - movesTaken + (lives * 78) + bonusPoints)*1;
+	gameState.score = (t + gameState.movesLeft - gameState.movesTaken + (gameState.lives * 78) + bonusPoints)*1;
  
-	int modH = score / 100;	// hundreds digit
-	int modT = score / 10;	// tens digit
-	int modO = score % 10;	// ones digit
+	int modH = gameState.score / 100;	// hundreds digit
+	int modT = gameState.score / 10;	// tens digit
+	int modO = gameState.score % 10;	// ones digit
 
 	/* initialize + get FBS */
 	framebufferstruct = initFbInfo();
@@ -1075,7 +1090,7 @@ int drawScore(int location){
 // function to display moves remaining on screen
 int drawMoves(){
 
-	int num = movesLeft - movesTaken + 1;	// - movesLeft/99;
+	int num = gameState.movesLeft - gameState.movesTaken + 1;	// - movesLeft/99;
 	int mod;
 	if(num < 0){
 		mod = 0;
@@ -1256,8 +1271,8 @@ int drawLanes(){
 
 	collided = false;
 
-	if(level == 2){
-		if((0 < ((537 - lastPressedY) / 64)) && (((537 - lastPressedY) / 64) < 6)){
+	if(gameState.level == 2){
+		if((0 < ((537 - gameState.lastPressedY) / 64)) && (((537 - gameState.lastPressedY) / 64) < 6)){
 			collided = true;	// backwards, such that not colliding with an obstacle is bad!
 		}
 	}
@@ -1288,21 +1303,21 @@ int drawLanes(){
 
 
 				// BELOW ARE FOR FROGGY COORDINATE REFERENCE!
-				//int frogLane = (537 - lastPressedY) / 64;		// array index for lanes is -1 of this!
-				//int frogColumn = (lastPressedX - 128) / 64; 	// index for pseudo-columns is -1???
+				//int frogLane = (537 - gameState->lastPressedY) / 64;		// array index for lanes is -1 of this!
+				//int frogColumn = (gameState->lastPressedX - 128) / 64; 	// index for pseudo-columns is -1???
 
 				// NEED BELOW VALUE BECAUSE OF NEG vs POS LANE OFFSETS!	<--- was 1 previously
 				int laneCollisionOffset = lane % 2;		// +1 for 1,3,5 & + 2 for 2,4
-				if (level > 2){
+				if (gameState.level > 2){
 					laneCollisionOffset = -laneCollisionOffset + 1;
 				}
 
 				// COLLISION DETECTION!
-				if((level != 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + laneCollisionOffset)){
+				if((gameState.level != 2) && (((537 - gameState.lastPressedY) / 64) == n) && (((gameState.lastPressedX - 128) / 64) == q + laneCollisionOffset)){
 					//score += 1;
 					collided = true;
 				}
-				if((level != 2) && (lane == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + 1 + laneCollisionOffset)){
+				if((gameState.level != 2) && (lane == 2) && (((537 - gameState.lastPressedY) / 64) == n) && (((gameState.lastPressedX - 128) / 64) == q + 1 + laneCollisionOffset)){
 					//score += 1;
 					collided = true;	// second half of double-wide
 				}
@@ -1310,32 +1325,32 @@ int drawLanes(){
 
 				// NEED BOTH OF THE BELOW IF-STATEMENTS!!
 
-				if((level == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + laneCollisionOffset)){
+				if((gameState.level == 2) && (((537 - gameState.lastPressedY) / 64) == n) && (((gameState.lastPressedX - 128) / 64) == q + laneCollisionOffset)){
 					//score += 1;
 					collided = false;	// per initially, we want collision to equal no collision for lvl 2!
 				}
 
-				if((level == 2) && (lane == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + 1 + laneCollisionOffset)){
+				if((gameState.level == 2) && (lane == 2) && (((537 - gameState.lastPressedY) / 64) == n) && (((gameState.lastPressedX - 128) / 64) == q + 1 + laneCollisionOffset)){
 					//score += 1;
 					collided = false;	// second half of double-wide
 				}
 
-				//if((level == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) > q + 1 - 0.5) && (((lastPressedX - 128) / 64) < q + 1 + 0.5)){
+				//if((level == 2) && (((537 - gameState->lastPressedY) / 64) == n) && (((gameState->lastPressedX - 128) / 64) > q + 1 - 0.5) && (((gameState->lastPressedX - 128) / 64) < q + 1 + 0.5)){
 				//	//score += 1;
 				//	collided = false;	// per initially, we want collision to equal no collision for lvl 2!
 				//}
 
-				//if((level == 2) && (lane == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) > q - 0.5) && (((lastPressedX - 128) / 64) < q + 0.5)){
+				//if((level == 2) && (lane == 2) && (((537 - gameState->lastPressedY) / 64) == n) && (((gameState->lastPressedX - 128) / 64) > q - 0.5) && (((gameState->lastPressedX - 128) / 64) < q + 0.5)){
 				//	//score += 1;
 				//	collided = false;	// second half of double-wide
 				//}
 				
-				//if((level == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q + 1)){
+				//if((level == 2) && (((537 - gameState->lastPressedY) / 64) == n) && (((gameState->lastPressedX - 128) / 64) == q + 1)){
 				//	//score += 1;
 				//	collided = false;	// per initially, we want collision to equal no collision for lvl 2!
 				//}
 
-				//if((level == 2) && (lane == 2) && (((537 - lastPressedY) / 64) == n) && (((lastPressedX - 128) / 64) == q)){
+				//if((level == 2) && (lane == 2) && (((537 - gameState->lastPressedY) / 64) == n) && (((gameState->lastPressedX - 128) / 64) == q)){
 				//	//score += 1;
 				//	collided = false;	// second half of double-wide
 				//}
@@ -1362,13 +1377,13 @@ int drawLanes(){
 					twoLongObs = 64;
 				}
 				
-				if (level == 1) {
+				if (gameState.level == 1) {
 					baddiePtr=(short int *) lvlOne_Obs.pixel_data;
 				}
-				else if (level == 2) {
+				else if (gameState.level == 2) {
 					baddiePtr=(short int *) lvlTwo_Obs.pixel_data;
 				}
-				else if (level == 3) {
+				else if (gameState.level == 3) {
 					baddiePtr=(short int *) lvlThree_Obs.pixel_data;
 				}
 				else {
@@ -1414,7 +1429,7 @@ int updateLaneOffsets(){
 	
 	for (int n = 0; n < 5; n++){	// for 5 lanes
 		
-		if (level < 3){
+		if (gameState.level < 3){
 			laneOffsets[n] += (int) laneSpeeds[n]*speedModifier;
 		} else {
 			laneOffsets[n] -= (int) laneSpeeds[n]*speedModifier;
